@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Winnie Shih — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --bg:      #080808;
+      --surface: #111111;
+      --border:  rgba(255,255,255,0.07);
+      --white:   #FFFFFF;
+      --muted:   rgba(255,255,255,0.38);
+      --gold:    #E5C349;
+      --serif:   'Playfair Display', Georgia, serif;
+      --sans:    'Inter', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body { font-family: var(--sans); background: var(--bg); color: var(--white); overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      padding: 0 6%; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: background 0.35s, border-color 0.35s;
+    }
+    nav.scrolled { background: rgba(8,8,8,0.92); backdrop-filter: blur(16px); border-color: var(--border); }
+    .nav-logo {
+      font-family: var(--serif); font-size: 1.15rem; font-weight: 700;
+      letter-spacing: 0.04em; color: var(--white);
+    }
+    .nav-logo em { font-style: italic; color: var(--gold); }
+    .nav-links { display: flex; gap: 2.5rem; align-items: center; }
+    .nav-links a {
+      font-size: 0.75rem; font-weight: 500; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted); transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta {
+      padding: 0.45rem 1.25rem;
+      border: 1px solid rgba(255,255,255,0.25); border-radius: 2px;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--white) !important; transition: border-color 0.2s, background 0.2s !important;
+    }
+    .nav-cta:hover { border-color: var(--gold); background: rgba(229,195,73,0.08) !important; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
+    .hamburger span { display: block; width: 22px; height: 1.5px; background: var(--white); transition: 0.3s; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; padding: 0 6%;
+      display: flex; flex-direction: column; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .hero-grid-lines {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+    .hero-noise {
+      position: absolute; inset: 0; pointer-events: none; opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+    .hero-kicker {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 14px;
+      opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+    }
+    .hero-kicker::before { content: ''; width: 36px; height: 1px; background: var(--gold); }
+    .hero-name {
+      font-family: var(--serif); font-weight: 900; line-height: 0.92;
+      font-size: clamp(4.5rem, 13vw, 11rem); letter-spacing: -0.02em;
+      color: var(--white); margin-bottom: 1.25rem;
+      opacity: 0; animation: fadeUp 0.9s 0.35s forwards;
+    }
+    .hero-name span { color: var(--gold); }
+    .hero-row {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 2rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.8s 0.55s forwards;
+    }
+    .hero-role {
+      font-size: clamp(0.95rem, 2vw, 1.15rem); color: var(--muted);
+      line-height: 1.65; max-width: 460px;
+    }
+    .hero-role strong { color: var(--white); font-weight: 600; }
+    .hero-cta-group { display: flex; gap: 1rem; align-items: center; flex-shrink: 0; }
+    .btn-primary {
+      padding: 0.85rem 2rem; background: var(--gold); color: #080808;
+      border: none; border-radius: 2px; cursor: pointer;
+      font-family: var(--sans); font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-ghost {
+      padding: 0.85rem 2rem; background: transparent; color: var(--white);
+      border: 1px solid var(--border); border-radius: 2px; cursor: pointer;
+      font-family: var(--sans); font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; transition: border-color 0.2s;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.4); }
+    .hero-scroll-hint {
+      position: absolute; bottom: 2.5rem; right: 6%;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+      opacity: 0; animation: fadeUp 0.8s 0.9s forwards;
+    }
+    .hero-scroll-hint::after { content: ''; width: 40px; height: 1px; background: var(--muted); }
+    .hero-counter {
+      position: absolute; bottom: 2.5rem; left: 6%;
+      font-family: var(--serif); font-size: 0.78rem; color: var(--muted);
+      opacity: 0; animation: fadeUp 0.8s 0.9s forwards;
+    }
+
+    /* ── WORKS ── */
+    #works { padding: 7rem 6% 5rem; }
+    .section-header { margin-bottom: 4rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+    .section-eyebrow { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.6rem; }
+    .section-title { font-family: var(--serif); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
+    .section-note { font-size: 0.85rem; color: var(--muted); line-height: 1.7; max-width: 320px; text-align: right; }
+
+    /* Project grid */
+    .works-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+
+    .project-card {
+      position: relative; overflow: hidden; cursor: pointer;
+      background: var(--surface);
+      display: flex; flex-direction: column;
+    }
+    .project-card.wide { grid-column: span 2; }
+
+    /* Preview area */
+    .project-preview {
+      aspect-ratio: 16/7; position: relative; overflow: hidden;
+    }
+    .project-card.wide .project-preview { aspect-ratio: 16/6; }
+    .project-preview-bg {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: clamp(3rem, 6vw, 6rem);
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .project-card:hover .project-preview-bg { transform: scale(1.06); }
+    .project-preview-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(8,8,8,0.8) 0%, transparent 60%);
+    }
+    .project-num {
+      position: absolute; top: 1.5rem; left: 1.5rem;
+      font-family: var(--serif); font-size: 0.9rem; font-weight: 700;
+      color: rgba(255,255,255,0.35); letter-spacing: 0.05em;
+    }
+    .project-tags {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;
+    }
+    .tag {
+      padding: 0.18rem 0.55rem; border-radius: 2px; border: 1px solid rgba(255,255,255,0.15);
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.6); background: rgba(0,0,0,0.35); backdrop-filter: blur(4px);
+    }
+
+    /* Project info */
+    .project-info {
+      padding: 1.5rem 2rem 1.75rem;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem;
+      border-top: 1px solid var(--border);
+      transition: border-color 0.3s;
+    }
+    .project-card:hover .project-info { border-color: rgba(229,195,73,0.3); }
+    .project-title { font-family: var(--serif); font-size: clamp(1.1rem, 2.2vw, 1.5rem); font-weight: 700; line-height: 1.25; margin-bottom: 0.4rem; }
+    .project-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; max-width: 520px; }
+    .project-link {
+      flex-shrink: 0; display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--gold); white-space: nowrap;
+      border-bottom: 1px solid transparent; padding-bottom: 1px;
+      transition: border-color 0.2s;
+    }
+    .project-link:hover { border-color: var(--gold); }
+    .project-link svg { width: 14px; height: 14px; transition: transform 0.2s; }
+    .project-link:hover svg { transform: translateX(3px); }
+    .project-links-row { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
+    .project-link-secondary {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 2px;
+      padding: 0.3rem 0.75rem; transition: border-color 0.2s, color 0.2s;
+    }
+    .project-link-secondary:hover { border-color: rgba(229,195,73,0.5); color: var(--gold); }
+    .project-link-secondary svg { width: 12px; height: 12px; }
+
+    /* Gradient presets */
+    .g1 { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4f46e5 70%, #818cf8 100%); }
+    .g2 { background: linear-gradient(135deg, #1a0f05 0%, #3d2b1f 50%, #b8975a 100%); }
+    .g3 { background: linear-gradient(135deg, #001a00 0%, #003300 40%, #00c853 80%, #69f0ae 100%); }
+    .g4 { background: linear-gradient(135deg, #001d3d 0%, #003566 50%, #0077b6 80%, #00b4d8 100%); }
+    .g5 { background: linear-gradient(135deg, #3d0000 0%, #7f1d1d 40%, #ef4444 75%, #fca5a5 100%); }
+    .g6 { background: linear-gradient(135deg, #1a1a00 0%, #523a00 40%, #d97706 75%, #fcd34d 100%); }
+
+    /* ── ABOUT ── */
+    #about {
+      padding: 7rem 6%;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center;
+      border-top: 1px solid var(--border);
+    }
+    .about-kicker { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+    .about-heading { font-family: var(--serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
+    .about-heading em { font-style: italic; color: var(--gold); font-weight: 400; }
+    .about-text { font-size: 0.95rem; color: var(--muted); line-height: 1.85; margin-bottom: 1rem; }
+    .about-links { display: flex; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; }
+    .about-link {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--white); border-bottom: 1px solid var(--border); padding-bottom: 3px; transition: border-color 0.2s, color 0.2s;
+    }
+    .about-link:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* Skills */
+    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; }
+    .skill-block {
+      background: var(--surface); padding: 1.75rem 1.5rem;
+      transition: background 0.2s;
+    }
+    .skill-block:hover { background: #1a1a1a; }
+    .skill-icon { font-size: 1.6rem; margin-bottom: 0.75rem; }
+    .skill-name { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem; }
+    .skill-items { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── STATS BAND ── */
+    .stats-band {
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      display: flex;
+    }
+    .stat-item {
+      flex: 1; padding: 2.5rem 4%;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-family: var(--serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; color: var(--gold); line-height: 1; }
+    .stat-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+    /* ── CONTACT ── */
+    #contact {
+      padding: 8rem 6%;
+      text-align: center;
+      background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(229,195,73,0.05) 0%, transparent 70%);
+    }
+    .contact-kicker { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem; }
+    .contact-heading { font-family: var(--serif); font-size: clamp(2.5rem, 7vw, 5.5rem); font-weight: 900; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 2.5rem; }
+    .contact-heading em { font-style: italic; color: var(--gold); font-weight: 400; }
+    .contact-email {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: clamp(0.9rem, 2vw, 1.1rem); color: var(--muted);
+      border-bottom: 1px solid var(--border); padding-bottom: 4px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .contact-email:hover { color: var(--white); border-color: var(--gold); }
+    .contact-socials { display: flex; gap: 2rem; justify-content: center; margin-top: 3rem; flex-wrap: wrap; }
+    .social-link {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--muted); transition: color 0.2s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .social-link:hover { color: var(--gold); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2rem 6%; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .footer-logo { font-family: var(--serif); font-size: 0.95rem; color: var(--muted); }
+    .footer-admin-link { font-size: 0.75rem; color: rgba(255,255,255,0.12); transition: color 0.2s; }
+    .footer-admin-link:hover { color: var(--gold); }
+    .footer-copy { font-size: 0.7rem; color: rgba(255,255,255,0.2); letter-spacing: 0.05em; }
+    .footer-links { display: flex; gap: 2rem; }
+    .footer-links a { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--gold); }
+
+    /* ── MOBILE MENU ── */
+    .mobile-nav {
+      display: none; position: fixed; inset: 0; z-index: 800;
+      background: var(--bg); flex-direction: column;
+      align-items: center; justify-content: center; gap: 2.5rem; padding-top: 64px;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { font-family: var(--serif); font-size: 2rem; font-weight: 700; color: var(--white); transition: color 0.2s; }
+    .mobile-nav a:hover { color: var(--gold); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .works-grid { grid-template-columns: 1fr; }
+      .project-card.wide { grid-column: span 1; }
+      #about { grid-template-columns: 1fr; gap: 3rem; }
+      .section-note { text-align: left; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .stats-band { flex-wrap: wrap; }
+      .stat-item { flex: 1 1 50%; border-right: none; border-bottom: 1px solid var(--border); }
+      footer { flex-direction: column; text-align: center; }
+      .footer-links { justify-content: center; }
+    }
+    @media (max-width: 600px) {
+      .skills-grid { grid-template-columns: 1fr; }
+      .works-grid { gap: 1px; }
+      .hero-cta-group { flex-direction: column; align-items: flex-start; }
+    }
+
+    /* ── ADMIN ── */
+    .admin-bar {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 950;
+      background: rgba(229,195,73,0.97); backdrop-filter: blur(8px);
+      padding: 0.65rem 6%; height: 52px;
+      align-items: center; justify-content: space-between; gap: 1rem;
+    }
+    .admin-bar.active { display: flex; }
+    .admin-bar-left { display: flex; align-items: center; gap: 10px; }
+    .admin-badge {
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase;
+      background: #080808; color: var(--gold); padding: 0.25rem 0.6rem; border-radius: 2px;
+    }
+    .admin-bar-msg { font-size: 0.78rem; font-weight: 600; color: #080808; }
+    .admin-bar-right { display: flex; gap: 0.75rem; }
+    .admin-btn {
+      padding: 0.4rem 1rem; border-radius: 2px; cursor: pointer; border: none;
+      font-family: var(--sans); font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; transition: opacity 0.2s;
+    }
+    .admin-btn:hover { opacity: 0.8; }
+    .admin-btn-exit { background: #080808; color: var(--gold); }
+    .admin-btn-reset { background: rgba(0,0,0,0.15); color: #080808; }
+
+    /* Edit button on each card */
+    .project-edit-btn {
+      display: none; position: absolute; top: 1rem; left: 50%; transform: translateX(-50%);
+      z-index: 10; padding: 0.45rem 1.1rem;
+      background: var(--gold); color: #080808;
+      border: none; border-radius: 2px; cursor: pointer;
+      font-family: var(--sans); font-size: 0.72rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4); transition: opacity 0.2s;
+    }
+    .project-edit-btn:hover { opacity: 0.85; }
+    body.admin-mode .project-edit-btn { display: block; }
+    body.admin-mode .project-card { outline: 1.5px dashed rgba(229,195,73,0.25); }
+    body.admin-mode .project-card:hover { outline-color: var(--gold); }
+
+    /* Admin modal */
+    .admin-modal-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    .admin-modal-backdrop.open { display: flex; }
+    .admin-modal {
+      background: #111; border: 1px solid rgba(229,195,73,0.2); border-radius: 6px;
+      width: 100%; max-width: 480px; padding: 2rem;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5); animation: mIn 0.22s ease;
+    }
+    @keyframes mIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    .admin-modal-title {
+      font-family: var(--serif); font-size: 1.25rem; font-weight: 700; margin-bottom: 0.3rem;
+    }
+    .admin-modal-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 1.75rem; }
+    .aform-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+    .aform-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+    .aform-input {
+      padding: 0.7rem 1rem; background: #1a1a1a;
+      border: 1.5px solid rgba(255,255,255,0.1); border-radius: 3px;
+      color: var(--white); font-size: 0.9rem; font-family: inherit; outline: none;
+      transition: border-color 0.2s;
+    }
+    .aform-input:focus { border-color: var(--gold); }
+    .aform-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+    .aform-save {
+      flex: 1; padding: 0.8rem; background: var(--gold); color: #080808;
+      border: none; border-radius: 2px; cursor: pointer;
+      font-family: var(--sans); font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; transition: opacity 0.2s;
+    }
+    .aform-save:hover { opacity: 0.85; }
+    .aform-cancel {
+      padding: 0.8rem 1.5rem; background: transparent; color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 2px; cursor: pointer;
+      font-family: var(--sans); font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; transition: border-color 0.2s;
+    }
+    .aform-cancel:hover { border-color: rgba(255,255,255,0.3); }
+
+    /* Password modal */
+    .pwd-modal-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 1100;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    .pwd-modal-backdrop.open { display: flex; }
+    .pwd-modal {
+      background: #111; border: 1px solid rgba(229,195,73,0.2); border-radius: 6px;
+      width: 100%; max-width: 380px; padding: 2.5rem 2rem; text-align: center;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6); animation: mIn 0.22s ease;
+    }
+    .pwd-logo { font-size: 2rem; margin-bottom: 1rem; }
+    .pwd-title { font-family: var(--serif); font-size: 1.4rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .pwd-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.5rem; }
+    .pwd-input {
+      width: 100%; padding: 0.8rem 1rem; text-align: center;
+      background: #1a1a1a; border: 1.5px solid rgba(255,255,255,0.1); border-radius: 3px;
+      color: var(--white); font-size: 1.1rem; font-family: inherit; outline: none;
+      letter-spacing: 0.2em; transition: border-color 0.2s; margin-bottom: 0.75rem;
+    }
+    .pwd-input:focus { border-color: var(--gold); }
+    .pwd-input.error { border-color: #ef4444; }
+    .pwd-err { font-size: 0.75rem; color: #ef4444; margin-bottom: 0.75rem; min-height: 1em; }
+    .pwd-submit {
+      width: 100%; padding: 0.85rem; background: var(--gold); color: #080808;
+      border: none; border-radius: 2px; cursor: pointer;
+      font-family: var(--sans); font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase; transition: opacity 0.2s;
+    }
+    .pwd-submit:hover { opacity: 0.85; }
+    .pwd-cancel-link { display: block; margin-top: 1rem; font-size: 0.72rem; color: var(--muted); cursor: pointer; }
+    .pwd-cancel-link:hover { color: var(--white); }
+
+    /* ── ADMIN EXTENDED ── */
+    .admin-btn-add { background: #080808; color: var(--gold); border: 1px solid #080808; }
+    .aform-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .aform-select {
+      padding: 0.7rem 1rem; background: #1a1a1a;
+      border: 1.5px solid rgba(255,255,255,0.1); border-radius: 3px;
+      color: var(--white); font-size: 0.9rem; font-family: inherit; outline: none;
+      transition: border-color 0.2s; cursor: pointer;
+    }
+    .aform-select:focus { border-color: var(--gold); }
+    .aform-check-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+    .aform-check-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--gold); cursor: pointer; }
+    .aform-check-row label { font-size: 0.82rem; color: var(--muted); cursor: pointer; }
+    .project-delete-btn {
+      display: none; position: absolute; top: 1rem; right: 1rem; z-index: 11;
+      padding: 0.35rem 0.7rem; background: #ef4444; color: #fff;
+      border: none; border-radius: 2px; cursor: pointer;
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      transition: opacity 0.2s;
+    }
+    .project-delete-btn:hover { opacity: 0.8; }
+    body.admin-mode .project-delete-btn { display: block; }
+    .project-drag-handle {
+      display: none; position: absolute; top: 1rem; left: 1rem; z-index: 11;
+      font-size: 1.1rem; color: rgba(229,195,73,0.7); cursor: grab; user-select: none;
+      line-height: 1; padding: 0.2rem;
+    }
+    .project-drag-handle:active { cursor: grabbing; }
+    body.admin-mode .project-drag-handle { display: block; }
+    .project-card.dragging { opacity: 0.35; }
+    .project-card.drag-over { outline: 2px solid var(--gold) !important; }
+    .admin-modal.wide-modal { max-width: 600px; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#"><em>W</em>innie Shih</a>
+  <ul class="nav-links">
+    <li><a href="#works">Works</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+  <button class="hamburger" id="ham" aria-label="menu" onclick="toggleMobile()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#works"   onclick="toggleMobile()">Works</a>
+  <a href="#about"   onclick="toggleMobile()">About</a>
+  <a href="#contact" onclick="toggleMobile()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-lines"></div>
+  <div class="hero-noise"></div>
+  <p class="hero-kicker">Portfolio · 2026</p>
+  <h1 class="hero-name">Winnie<br><span>Shih.</span></h1>
+  <div class="hero-row">
+    <p class="hero-role">
+      <strong>Strategy × Digital × AI</strong><br>
+      Building at the intersection of design, data, and emerging technology.
+      From interactive web apps to AI-powered tools — each project is a new experiment.
+    </p>
+    <div class="hero-cta-group">
+      <a class="btn-primary" href="#works">View Works</a>
+      <a class="btn-ghost"   href="#contact">Get in Touch</a>
+    </div>
+  </div>
+  <div class="hero-scroll-hint">Scroll to explore</div>
+  <div class="hero-counter">6 Projects</div>
+</section>
+
+<!-- STATS BAND -->
+<div class="stats-band reveal">
+  <div class="stat-item"><div class="stat-num">6+</div><div class="stat-label">Projects Built</div></div>
+  <div class="stat-item"><div class="stat-num">4</div><div class="stat-label">Tech Stacks</div></div>
+  <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">AI Projects</div></div>
+  <div class="stat-item"><div class="stat-num">∞</div><div class="stat-label">Curiosity</div></div>
+</div>
+
+<!-- WORKS -->
+<section id="works">
+  <div class="section-header reveal">
+    <div>
+      <p class="section-eyebrow">Selected Works</p>
+      <h2 class="section-title">What I've Built</h2>
+    </div>
+    <p class="section-note">A collection of web experiments, AI tools, and design explorations built from scratch.</p>
+  </div>
+
+  <div class="works-grid" id="worksGrid"></div><!-- /works-grid -->
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="reveal">
+    <p class="about-kicker">About Me</p>
+    <h2 class="about-heading">Strategy meets<br><em>curiosity</em></h2>
+    <p class="about-text">I'm Winnie — a strategist and self-taught builder exploring the intersection of AI, design, and digital products. I learn by making: each project in this portfolio started as a homework assignment and became a working demo.</p>
+    <p class="about-text">Currently diving deep into AI tooling, Python automation, and modern web interfaces. Always shipping, always curious.</p>
+    <div class="about-links">
+      <a class="about-link" href="https://github.com/winnieshih1107" target="_blank">GitHub ↗</a>
+      <a class="about-link" href="mailto:winnieshih1107@gmail.com">Email ↗</a>
+      <a class="about-link" href="https://winnieshih1107.github.io/travel/">Travel Journal ↗</a>
+    </div>
+  </div>
+
+  <div class="skills-grid reveal">
+    <div class="skill-block">
+      <div class="skill-icon">🤖</div>
+      <div class="skill-name">AI & LLM</div>
+      <div class="skill-items">Gemini API · OpenRouter · Faster-Whisper · Hugging Face · Streamlit</div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-icon">🌐</div>
+      <div class="skill-name">Frontend</div>
+      <div class="skill-items">HTML · CSS · JavaScript · React · Leaflet.js · GSAP</div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-icon">🐍</div>
+      <div class="skill-name">Python</div>
+      <div class="skill-items">OpenCV · PyTorch · FastAPI · Web Scraping · Data Analysis</div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-icon">🎨</div>
+      <div class="skill-name">Design</div>
+      <div class="skill-items">UI/UX · Typography · Glassmorphism · Responsive Layouts</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="contact-kicker reveal">Get in Touch</p>
+  <h2 class="contact-heading reveal">Let's build<br>something <em>together.</em></h2>
+  <a class="contact-email reveal" href="mailto:winnieshih1107@gmail.com">
+    winnieshih1107@gmail.com
+  </a>
+  <div class="contact-socials reveal">
+    <a class="social-link" href="https://github.com/winnieshih1107" target="_blank">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      GitHub
+    </a>
+    <a class="social-link" href="https://winnieshih1107.github.io/travel/">✈ Travel Journal</a>
+    <a class="social-link" href="https://winnieshih1107.github.io/wi/winnie.html">💼 Personal Site</a>
+  </div>
+</section>
+
+<!-- ADMIN BAR (visible only in admin mode) -->
+<div class="admin-bar" id="adminBar">
+  <div class="admin-bar-left">
+    <span class="admin-badge">Admin</span>
+    <span class="admin-bar-msg">拖曳排序 · 點 ✎ 編輯 · 點 ✕ 刪除</span>
+  </div>
+  <div class="admin-bar-right">
+    <button class="admin-btn admin-btn-add"   onclick="openAddModal()">➕ 新增專案</button>
+    <button class="admin-btn admin-btn-reset" onclick="resetAll()">↺ 還原預設</button>
+    <button class="admin-btn admin-btn-exit"  onclick="exitAdmin()">✕ 退出管理</button>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div class="pwd-modal-backdrop" id="pwdModal">
+  <div class="pwd-modal">
+    <div class="pwd-logo">🔐</div>
+    <h2 class="pwd-title">管理員登入</h2>
+    <p class="pwd-sub">請輸入管理員密碼以進入編輯模式</p>
+    <input class="pwd-input" id="pwdInput" type="password" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')checkPwd()" />
+    <p class="pwd-err" id="pwdErr"></p>
+    <button class="pwd-submit" onclick="checkPwd()">進入管理模式</button>
+    <span class="pwd-cancel-link" onclick="closePwdModal()">取消</span>
+  </div>
+</div>
+
+<!-- EDIT PROJECT MODAL -->
+<div class="admin-modal-backdrop" id="editModal">
+  <div class="admin-modal wide-modal">
+    <h3 class="admin-modal-title">✎ 編輯專案</h3>
+    <p class="admin-modal-sub" id="editModalSub">專案</p>
+    <div class="aform-group">
+      <label class="aform-label">專案名稱</label>
+      <input class="aform-input" id="editTitle" placeholder="Project Title" />
+    </div>
+    <div class="aform-group">
+      <label class="aform-label">描述</label>
+      <input class="aform-input" id="editDesc" placeholder="Brief description..." />
+    </div>
+    <div class="aform-group">
+      <label class="aform-label">技術標籤（逗號分隔）</label>
+      <input class="aform-input" id="editTags" placeholder="HTML, CSS, JavaScript" />
+    </div>
+    <div class="aform-2col">
+      <div class="aform-group">
+        <label class="aform-label">Emoji 圖示</label>
+        <input class="aform-input" id="editEmoji" placeholder="🚀" style="font-size:1.4rem;text-align:center" />
+      </div>
+      <div class="aform-group">
+        <label class="aform-label">背景色調</label>
+        <select class="aform-select" id="editGradient">
+          <option value="g1">g1 — 紫藍</option>
+          <option value="g2">g2 — 古銅</option>
+          <option value="g3">g3 — 翠綠</option>
+          <option value="g4">g4 — 海藍</option>
+          <option value="g5">g5 — 深紅</option>
+          <option value="g6">g6 — 琥珀</option>
+        </select>
+      </div>
+    </div>
+    <div class="aform-check-row">
+      <input type="checkbox" id="editWide" />
+      <label for="editWide">寬版卡片（佔兩欄）</label>
+    </div>
+    <div class="aform-2col">
+      <div class="aform-group">
+        <label class="aform-label">Demo 按鈕文字</label>
+        <input class="aform-input" id="editLabel" placeholder="View Demo" />
+      </div>
+      <div class="aform-group">
+        <label class="aform-label">Demo 網址 URL</label>
+        <input class="aform-input" id="editUrl" placeholder="https://..." />
+      </div>
+    </div>
+    <div class="aform-2col">
+      <div class="aform-group">
+        <label class="aform-label">操作說明按鈕文字</label>
+        <input class="aform-input" id="editLabel2" placeholder="操作說明" />
+      </div>
+      <div class="aform-group">
+        <label class="aform-label">操作說明網址 URL</label>
+        <input class="aform-input" id="editUrl2" placeholder="https://... （留空則不顯示）" />
+      </div>
+    </div>
+    <div class="aform-row">
+      <button class="aform-save" onclick="saveEdit()">儲存</button>
+      <button class="aform-cancel" onclick="closeEditModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PROJECT MODAL -->
+<div class="admin-modal-backdrop" id="addModal">
+  <div class="admin-modal wide-modal">
+    <h3 class="admin-modal-title">➕ 新增專案</h3>
+    <div class="aform-group">
+      <label class="aform-label">專案名稱</label>
+      <input class="aform-input" id="addTitle" placeholder="Project Title" />
+    </div>
+    <div class="aform-group">
+      <label class="aform-label">描述</label>
+      <input class="aform-input" id="addDesc" placeholder="Brief description..." />
+    </div>
+    <div class="aform-group">
+      <label class="aform-label">技術標籤（逗號分隔）</label>
+      <input class="aform-input" id="addTags" placeholder="HTML, CSS, JavaScript" />
+    </div>
+    <div class="aform-2col">
+      <div class="aform-group">
+        <label class="aform-label">Emoji 圖示</label>
+        <input class="aform-input" id="addEmoji" placeholder="🚀" style="font-size:1.4rem;text-align:center" />
+      </div>
+      <div class="aform-group">
+        <label class="aform-label">背景色調</label>
+        <select class="aform-select" id="addGradient">
+          <option value="g1">g1 — 紫藍</option>
+          <option value="g2">g2 — 古銅</option>
+          <option value="g3">g3 — 翠綠</option>
+          <option value="g4">g4 — 海藍</option>
+          <option value="g5">g5 — 深紅</option>
+          <option value="g6">g6 — 琥珀</option>
+        </select>
+      </div>
+    </div>
+    <div class="aform-check-row">
+      <input type="checkbox" id="addWide" />
+      <label for="addWide">寬版卡片（佔兩欄）</label>
+    </div>
+    <div class="aform-2col">
+      <div class="aform-group">
+        <label class="aform-label">Demo 按鈕文字</label>
+        <input class="aform-input" id="addLabel" placeholder="View Demo" />
+      </div>
+      <div class="aform-group">
+        <label class="aform-label">Demo 網址 URL</label>
+        <input class="aform-input" id="addUrl" placeholder="https://..." />
+      </div>
+    </div>
+    <div class="aform-2col">
+      <div class="aform-group">
+        <label class="aform-label">操作說明按鈕文字</label>
+        <input class="aform-input" id="addLabel2" placeholder="操作說明" />
+      </div>
+      <div class="aform-group">
+        <label class="aform-label">操作說明網址 URL</label>
+        <input class="aform-input" id="addUrl2" placeholder="https://... （留空則不顯示）" />
+      </div>
+    </div>
+    <div class="aform-row">
+      <button class="aform-save" onclick="saveAdd()">新增</button>
+      <button class="aform-cancel" onclick="closeAddModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo" id="footerLogo">Winnie Shih</div>
+  <p class="footer-copy">&copy; 2026 · Built with HTML, CSS & curiosity.</p>
+  <ul class="footer-links">
+    <li><a href="#works">Works</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#" class="footer-admin-link" onclick="event.preventDefault();openPwdModal()">⚙</a></li>
+  </ul>
+</footer>
+
+<script>
+// ── ADMIN PASSWORD ───────────────────────────────────────────────────────
+const ADMIN_HASH = btoa('winnie1107');
+
+// ── PROJECT DEFAULTS ─────────────────────────────────────────────────────
+const PROJECTS_DEFAULT = [
+  { id:'p01', title:'Cosmos 3 AI Image Studio',   desc:'NVIDIA-style text-to-image generation studio with Gemini prompt expansion, 6 style presets, Hugging Face multi-model switching, and a real-time lightbox gallery. Deployed on Streamlit Cloud.', tags:['AI','Python','React','Streamlit'], emoji:'🤖', gradient:'g3', wide:true,  url:'https://winnieshih1107.github.io/wi/260604/cosmos3_image_studio.html', label:'View Demo', url2:'', label2:'操作說明' },
+  { id:'p02', title:'Interactive Live Clock',      desc:'Glassmorphic greeting page with real-time clock, ambient dynamic greetings by time-of-day, 3D tilt on hover, and dark/light theme toggle.',                                                       tags:['HTML','CSS','JavaScript'],          emoji:'🕐', gradient:'g1', wide:false, url:'https://winnieshih1107.github.io/wi/260529/index.html',                label:'View Demo', url2:'', label2:'操作說明' },
+  { id:'p03', title:'Consulting Landing Page',     desc:'Premium strategy consulting firm website with serif typography, gold accent system, animated service cards, and a full-featured contact section.',                                                  tags:['HTML','CSS','UI Design'],           emoji:'💼', gradient:'g2', wide:false, url:'https://winnieshih1107.github.io/wi/260529/consulting.html',           label:'View Demo', url2:'', label2:'操作說明' },
+  { id:'p04', title:'Life Journey Map',            desc:'Interactive world travel journal — click anywhere on the map to pin a location, upload trip photos, and write diary entries. All data saved locally in the browser. Geocoding powered by Nominatim.', tags:['Leaflet.js','HTML','localStorage'], emoji:'🗺️', gradient:'g5', wide:true,  url:'https://winnieshih1107.github.io/travel/', label:'View Demo', url2:'https://github.com/winnieshih1107/travel#readme', label2:'操作說明' },
+  { id:'p05', title:'Video Note Helper',           desc:'Python CLI tool that auto-transcribes video using Faster-Whisper, captures screenshots every 30 seconds, and exports a fully-styled HTML notebook with timestamps.',                               tags:['Python','Whisper','OpenCV'],        emoji:'🎬', gradient:'g4', wide:false, url:'https://github.com/winnieshih1107/wi/blob/main/260602/video_note_helper.py', label:'View Code', url2:'', label2:'操作說明' },
+  { id:'p06', title:'Agency-Style Personal Site', desc:'Bold digital-marketing agency aesthetic adapted into a personal branding site. Featuring multi-column hero layout, animated service cards, and a live contact form.',                               tags:['HTML','CSS','Branding'],            emoji:'🎨', gradient:'g6', wide:false, url:'https://winnieshih1107.github.io/wi/winnie.html',                      label:'View Demo', url2:'', label2:'操作說明' },
+  { id:'p07', title:'薪資計算系統',               desc:'台灣學術機構專任助理薪資試算工具，依學歷與年資套用 2024 年官方薪資標準，自動計算勞健保及退休金提撥，支援多人試算並匯出 CSV 報表。',                                                                                                tags:['HTML','JavaScript','CSV'],          emoji:'💰', gradient:'g2', wide:false, url:'https://winnieshih1107.github.io/salary/', label:'View Demo', url2:'https://github.com/winnieshih1107/salary#readme', label2:'操作說明' },
+];
+
+// ── STORAGE ──────────────────────────────────────────────────────────────
+function getProjects() {
+  const saved = localStorage.getItem('cv_projects');
+  return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(PROJECTS_DEFAULT));
+}
+function saveProjects(list) {
+  localStorage.setItem('cv_projects', JSON.stringify(list));
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────
+function buildCardHTML(p, idx) {
+  const num   = String(idx + 1).padStart(2, '0');
+  const tags  = p.tags.map(t => `<span class="tag">${t}</span>`).join('');
+  const wide  = p.wide ? ' wide' : '';
+  return `
+  <article class="project-card${wide} reveal" data-id="${p.id}" draggable="false">
+    <span class="project-drag-handle" title="拖曳排序">⠿</span>
+    <button class="project-edit-btn"   onclick="openEdit('${p.id}')">✎ 編輯</button>
+    <button class="project-delete-btn" onclick="deleteProject('${p.id}')">✕</button>
+    <div class="project-preview">
+      <div class="project-preview-bg ${p.gradient}">${p.emoji}</div>
+      <div class="project-preview-overlay"></div>
+      <span class="project-num">${num}</span>
+      <div class="project-tags">${tags}</div>
+    </div>
+    <div class="project-info">
+      <div>
+        <h3 class="project-title">${p.title}</h3>
+        <p class="project-desc">${p.desc}</p>
+      </div>
+      <div class="project-links-row">
+        <a class="project-link" href="${p.url}" target="_blank">
+          <span class="link-label">${p.label}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        ${p.url2 ? `<a class="project-link-secondary" href="${p.url2}" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          ${p.label2 || '操作說明'}
+        </a>` : ''}
+      </div>
+    </div>
+  </article>`;
+}
+
+function renderProjects() {
+  const grid = document.getElementById('worksGrid');
+  const list = getProjects();
+  grid.innerHTML = list.map((p, i) => buildCardHTML(p, i)).join('');
+  // re-attach reveal observer
+  grid.querySelectorAll('.reveal').forEach((el, i) => {
+    el.style.transitionDelay = `${(i % 2) * 0.1}s`;
+    revealObserver.observe(el);
+  });
+  // attach drag handlers in admin mode
+  if (document.body.classList.contains('admin-mode')) attachDrag();
+}
+
+// ── SCROLL REVEAL ────────────────────────────────────────────────────────
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+renderProjects();
+
+// ── NAV SCROLL ───────────────────────────────────────────────────────────
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+
+function toggleMobile() {
+  document.getElementById('mobileNav').classList.toggle('open');
+}
+
+// ── DRAG TO REORDER ──────────────────────────────────────────────────────
+let _dragSrc = null;
+
+function attachDrag() {
+  const cards = document.querySelectorAll('.project-card[data-id]');
+  cards.forEach(card => {
+    card.setAttribute('draggable', 'true');
+    card.addEventListener('dragstart', function(e) {
+      _dragSrc = this;
+      this.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', function() {
+      this.classList.remove('dragging');
+      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+    card.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      if (this !== _dragSrc) {
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        this.classList.add('drag-over');
+      }
+    });
+    card.addEventListener('drop', function(e) {
+      e.preventDefault();
+      if (!_dragSrc || _dragSrc === this) return;
+      const list = getProjects();
+      const srcId  = _dragSrc.dataset.id;
+      const dstId  = this.dataset.id;
+      const srcIdx = list.findIndex(p => p.id === srcId);
+      const dstIdx = list.findIndex(p => p.id === dstId);
+      const [item] = list.splice(srcIdx, 1);
+      list.splice(dstIdx, 0, item);
+      saveProjects(list);
+      renderProjects();
+    });
+  });
+}
+
+// ── ADMIN — PASSWORD MODAL ───────────────────────────────────────────────
+function openPwdModal() {
+  document.getElementById('pwdInput').value = '';
+  document.getElementById('pwdErr').textContent = '';
+  document.getElementById('pwdInput').classList.remove('error');
+  document.getElementById('pwdModal').classList.add('open');
+  setTimeout(() => document.getElementById('pwdInput').focus(), 100);
+}
+function closePwdModal() {
+  document.getElementById('pwdModal').classList.remove('open');
+}
+function checkPwd() {
+  const val = document.getElementById('pwdInput').value;
+  if (btoa(val) === ADMIN_HASH) {
+    closePwdModal(); enterAdmin();
+  } else {
+    document.getElementById('pwdInput').classList.add('error');
+    document.getElementById('pwdErr').textContent = '密碼錯誤，請再試一次';
+    document.getElementById('pwdInput').value = '';
+    setTimeout(() => {
+      document.getElementById('pwdInput').classList.remove('error');
+      document.getElementById('pwdErr').textContent = '';
+    }, 2500);
+  }
+}
+
+// ── ADMIN — MODE ─────────────────────────────────────────────────────────
+function enterAdmin() {
+  document.body.classList.add('admin-mode');
+  document.getElementById('adminBar').classList.add('active');
+  document.body.style.paddingBottom = '52px';
+  attachDrag();
+}
+function exitAdmin() {
+  document.body.classList.remove('admin-mode');
+  document.getElementById('adminBar').classList.remove('active');
+  document.body.style.paddingBottom = '';
+  document.querySelectorAll('.project-card[data-id]').forEach(c => c.setAttribute('draggable','false'));
+}
+function resetAll() {
+  if (!confirm('確定要還原所有專案至預設？（自訂排序、新增和修改將全部清除）')) return;
+  localStorage.removeItem('cv_projects');
+  renderProjects();
+  if (document.body.classList.contains('admin-mode')) attachDrag();
+}
+
+// ── ADMIN — DELETE ───────────────────────────────────────────────────────
+function deleteProject(id) {
+  if (!confirm('確定要刪除這個專案？')) return;
+  const list = getProjects().filter(p => p.id !== id);
+  saveProjects(list);
+  renderProjects();
+  if (document.body.classList.contains('admin-mode')) attachDrag();
+}
+
+// ── ADMIN — EDIT PROJECT ─────────────────────────────────────────────────
+let _editId = null;
+
+function openEdit(id) {
+  const list = getProjects();
+  const p = list.find(x => x.id === id);
+  if (!p) return;
+  _editId = id;
+  document.getElementById('editModalSub').textContent = p.title;
+  document.getElementById('editTitle').value    = p.title;
+  document.getElementById('editDesc').value     = p.desc;
+  document.getElementById('editTags').value     = p.tags.join(', ');
+  document.getElementById('editEmoji').value    = p.emoji;
+  document.getElementById('editGradient').value = p.gradient;
+  document.getElementById('editWide').checked   = p.wide;
+  document.getElementById('editLabel').value    = p.label;
+  document.getElementById('editUrl').value      = p.url;
+  document.getElementById('editLabel2').value   = p.label2 || '操作說明';
+  document.getElementById('editUrl2').value     = p.url2   || '';
+  document.getElementById('editModal').classList.add('open');
+  setTimeout(() => document.getElementById('editTitle').focus(), 80);
+}
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  _editId = null;
+}
+function saveEdit() {
+  if (!_editId) return;
+  const list = getProjects();
+  const idx  = list.findIndex(p => p.id === _editId);
+  if (idx === -1) return;
+  const title = document.getElementById('editTitle').value.trim();
+  const url   = document.getElementById('editUrl').value.trim();
+  if (!title) { alert('請填寫專案名稱'); return; }
+  if (!url)   { alert('請填寫網址');     return; }
+  list[idx] = {
+    ...list[idx],
+    title,
+    desc:     document.getElementById('editDesc').value.trim(),
+    tags:     document.getElementById('editTags').value.split(',').map(t => t.trim()).filter(Boolean),
+    emoji:    document.getElementById('editEmoji').value.trim() || '📁',
+    gradient: document.getElementById('editGradient').value,
+    wide:     document.getElementById('editWide').checked,
+    label:    document.getElementById('editLabel').value.trim() || 'View Demo',
+    url,
+    label2:   document.getElementById('editLabel2').value.trim() || '操作說明',
+    url2:     document.getElementById('editUrl2').value.trim(),
+  };
+  saveProjects(list);
+  renderProjects();
+  closeEditModal();
+  if (document.body.classList.contains('admin-mode')) attachDrag();
+}
+
+// ── ADMIN — ADD PROJECT ──────────────────────────────────────────────────
+function openAddModal() {
+  ['addTitle','addDesc','addTags','addUrl','addUrl2'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('addEmoji').value    = '🚀';
+  document.getElementById('addGradient').value = 'g1';
+  document.getElementById('addLabel').value    = 'View Demo';
+  document.getElementById('addLabel2').value   = '操作說明';
+  document.getElementById('addWide').checked   = false;
+  document.getElementById('addModal').classList.add('open');
+  setTimeout(() => document.getElementById('addTitle').focus(), 80);
+}
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('open');
+}
+function saveAdd() {
+  const title = document.getElementById('addTitle').value.trim();
+  const url   = document.getElementById('addUrl').value.trim();
+  if (!title) { alert('請填寫專案名稱'); return; }
+  if (!url)   { alert('請填寫網址');     return; }
+  const list = getProjects();
+  const newId = 'p' + Date.now();
+  list.push({
+    id: newId,
+    title,
+    desc:     document.getElementById('addDesc').value.trim(),
+    tags:     document.getElementById('addTags').value.split(',').map(t => t.trim()).filter(Boolean),
+    emoji:    document.getElementById('addEmoji').value.trim() || '🚀',
+    gradient: document.getElementById('addGradient').value,
+    wide:     document.getElementById('addWide').checked,
+    label:    document.getElementById('addLabel').value.trim() || 'View Demo',
+    url,
+    label2:   document.getElementById('addLabel2').value.trim() || '操作說明',
+    url2:     document.getElementById('addUrl2').value.trim(),
+  });
+  saveProjects(list);
+  renderProjects();
+  closeAddModal();
+  if (document.body.classList.contains('admin-mode')) attachDrag();
+}
+
+// ── MODAL BACKDROP CLOSE ─────────────────────────────────────────────────
+document.getElementById('pwdModal').addEventListener('click',  e => { if (e.target === document.getElementById('pwdModal'))  closePwdModal(); });
+document.getElementById('editModal').addEventListener('click', e => { if (e.target === document.getElementById('editModal')) closeEditModal(); });
+document.getElementById('addModal').addEventListener('click',  e => { if (e.target === document.getElementById('addModal'))  closeAddModal(); });
+</script>
+</body>
+</html>
