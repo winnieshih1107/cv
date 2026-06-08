@@ -135,6 +135,12 @@
 
     /* Project grid */
     .works-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .works-section { margin-bottom: 3.5rem; }
+    .works-section:last-child { margin-bottom: 0; }
+    .cat-header { background: var(--surface); padding: 1.3rem 2.5rem 1.1rem; display: flex; align-items: baseline; gap: 1.2rem; margin-bottom: 2px; border-left: 3px solid var(--gold); }
+    .cat-eyebrow { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); }
+    .cat-title { font-family: var(--serif); font-size: 1.35rem; font-weight: 900; }
+    .cat-en { font-weight: 400; color: var(--muted); font-size: 0.9rem; margin-left: 0.3rem; }
 
     .project-card {
       position: relative; overflow: hidden; cursor: pointer;
@@ -521,12 +527,12 @@
     </div>
   </div>
   <div class="hero-scroll-hint">Scroll to explore</div>
-  <div class="hero-counter">8 Projects</div>
+  <div class="hero-counter">5 Works</div>
 </section>
 
 <!-- STATS BAND -->
 <div class="stats-band reveal">
-  <div class="stat-item"><div class="stat-num">8+</div><div class="stat-label">Projects Built</div></div>
+  <div class="stat-item"><div class="stat-num">5</div><div class="stat-label">Works Built</div></div>
   <div class="stat-item"><div class="stat-num">4</div><div class="stat-label">Tech Stacks</div></div>
   <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">AI Projects</div></div>
   <div class="stat-item"><div class="stat-num">∞</div><div class="stat-label">Curiosity</div></div>
@@ -542,7 +548,7 @@
     <p class="section-note">A collection of web experiments, AI tools, and design explorations built from scratch.</p>
   </div>
 
-  <div class="works-grid" id="worksGrid"></div><!-- /works-grid -->
+  <div id="worksGrid"></div>
 </section>
 
 <!-- ABOUT -->
@@ -661,9 +667,18 @@
         </select>
       </div>
     </div>
-    <div class="aform-check-row">
-      <input type="checkbox" id="editWide" />
-      <label for="editWide">寬版卡片（佔兩欄）</label>
+    <div class="aform-2col">
+      <div class="aform-group">
+        <label class="aform-label">分類</label>
+        <select class="aform-select" id="editCat">
+          <option value="project">專案 Project</option>
+          <option value="tool">小工具 Tool</option>
+        </select>
+      </div>
+      <div class="aform-group" style="display:flex;align-items:flex-end;padding-bottom:0.2rem">
+        <input type="checkbox" id="editWide" style="margin-right:0.5rem" />
+        <label for="editWide">寬版卡片（佔兩欄）</label>
+      </div>
     </div>
     <div class="aform-2col">
       <div class="aform-group">
@@ -725,9 +740,18 @@
         </select>
       </div>
     </div>
-    <div class="aform-check-row">
-      <input type="checkbox" id="addWide" />
-      <label for="addWide">寬版卡片（佔兩欄）</label>
+    <div class="aform-2col">
+      <div class="aform-group">
+        <label class="aform-label">分類</label>
+        <select class="aform-select" id="addCat">
+          <option value="project">專案 Project</option>
+          <option value="tool">小工具 Tool</option>
+        </select>
+      </div>
+      <div class="aform-group" style="display:flex;align-items:flex-end;padding-bottom:0.2rem">
+        <input type="checkbox" id="addWide" style="margin-right:0.5rem" />
+        <label for="addWide">寬版卡片（佔兩欄）</label>
+      </div>
     </div>
     <div class="aform-2col">
       <div class="aform-group">
@@ -774,23 +798,20 @@ const ADMIN_HASH = btoa('winnie1107');
 
 // ── PROJECT DEFAULTS ─────────────────────────────────────────────────────
 const PROJECTS_DEFAULT = [
-  { id:'p01', title:'Cosmos 3 AI Image Studio',   desc:'NVIDIA-style text-to-image generation studio with Gemini prompt expansion, 6 style presets, Hugging Face multi-model switching, and a real-time lightbox gallery. Deployed on Streamlit Cloud.', tags:['AI','Python','Streamlit'], emoji:'🤖', gradient:'g3', wide:true,  url:'https://wicosmos3.streamlit.app', label:'Live Demo', url2:'https://github.com/winnieshih1107/cosmos3-image-studio', label2:'GitHub' },
-  { id:'p08', title:'十大機器學習演算法互動平台', desc:'Interactive ML learning platform covering 10 algorithms — each with a live Playground (adjust params, visualize decision boundaries), Guide, Code snippets, and Quiz. Built with Streamlit (cloud) + FastAPI + Next.js (local).', tags:['Python','Streamlit','FastAPI','Next.js'], emoji:'📊', gradient:'g4', wide:true, url:'https://wi0608.streamlit.app/', label:'Live Demo', url2:'https://github.com/winnieshih1107/ML', label2:'GitHub' },
-  { id:'p02', title:'Interactive Live Clock',      desc:'Glassmorphic greeting page with real-time clock, ambient dynamic greetings by time-of-day, 3D tilt on hover, and dark/light theme toggle.',                                                       tags:['HTML','CSS','JavaScript'],          emoji:'🕐', gradient:'g1', wide:false, url:'https://winnieshih1107.github.io/wi/',                                  label:'View Demo', url2:'', label2:'操作說明' },
-  { id:'p03', title:'Consulting Landing Page',     desc:'Premium strategy consulting firm website with serif typography, gold accent system, animated service cards, and a full-featured contact section.',                                                  tags:['HTML','CSS','UI Design'],           emoji:'💼', gradient:'g2', wide:false, url:'https://winnieshih1107.github.io/wi/consulting.html',                   label:'View Demo', url2:'', label2:'操作說明' },
-  { id:'p04', title:'Life Journey Map',            desc:'Interactive world travel journal — click anywhere on the map to pin a location, upload trip photos, and write diary entries. All data saved locally in the browser. Geocoding powered by Nominatim.', tags:['Leaflet.js','HTML','localStorage'], emoji:'🗺️', gradient:'g5', wide:true,  url:'https://winnieshih1107.github.io/travel/', label:'View Demo', url2:'https://github.com/winnieshih1107/travel#readme', label2:'操作說明' },
-  { id:'p05', title:'Video Note Helper',           desc:'Python CLI tool that auto-transcribes video using Faster-Whisper, captures screenshots every 30 seconds, and exports a fully-styled HTML notebook with timestamps.',                               tags:['Python','Whisper','OpenCV'],        emoji:'🎬', gradient:'g4', wide:false, url:'https://github.com/winnieshih1107/wi/blob/main/260602/video_note_helper.py', label:'View Code', url2:'', label2:'操作說明' },
-  { id:'p06', title:'Agency-Style Personal Site', desc:'Bold digital-marketing agency aesthetic adapted into a personal branding site. Featuring multi-column hero layout, animated service cards, and a live contact form.',                               tags:['HTML','CSS','Branding'],            emoji:'🎨', gradient:'g6', wide:false, url:'https://winnieshih1107.github.io/wi/winnie.html',                      label:'View Demo', url2:'', label2:'操作說明' },
-  { id:'p07', title:'薪資計算系統',               desc:'台灣學術機構專任助理薪資試算工具，依學歷與年資套用 2024 年官方薪資標準，自動計算勞健保及退休金提撥，支援多人試算並匯出 CSV 報表。',                                                                                                tags:['HTML','JavaScript','CSV'],          emoji:'💰', gradient:'g2', wide:false, url:'https://winnieshih1107.github.io/salary/', label:'View Demo', url2:'https://github.com/winnieshih1107/salary#readme', label2:'操作說明' },
+  { id:'p01', cat:'project', title:'Cosmos 3 AI Image Studio',   desc:'NVIDIA-style text-to-image generation studio with Gemini prompt expansion, 6 style presets, Hugging Face multi-model switching, and a real-time lightbox gallery. Deployed on Streamlit Cloud.', tags:['AI','Python','Streamlit'], emoji:'🤖', gradient:'g3', wide:true,  url:'https://wicosmos3.streamlit.app', label:'Live Demo', url2:'https://github.com/winnieshih1107/cosmos3-image-studio', label2:'GitHub' },
+  { id:'p08', cat:'project', title:'十大機器學習演算法互動平台', desc:'Interactive ML learning platform covering 10 algorithms — each with a live Playground (adjust params, visualize decision boundaries), Guide, Code snippets, and Quiz. Built with Streamlit (cloud) + FastAPI + Next.js (local).', tags:['Python','Streamlit','FastAPI','Next.js'], emoji:'📊', gradient:'g4', wide:true, url:'https://wi0608.streamlit.app/', label:'Live Demo', url2:'https://github.com/winnieshih1107/ML', label2:'GitHub' },
+  { id:'p02', cat:'project', title:'Interactive Live Clock',      desc:'Glassmorphic greeting page with real-time clock, ambient dynamic greetings by time-of-day, 3D tilt on hover, and dark/light theme toggle.',                                                       tags:['HTML','CSS','JavaScript'],          emoji:'🕐', gradient:'g1', wide:false, url:'https://winnieshih1107.github.io/wi/',                                  label:'View Demo', url2:'', label2:'操作說明' },
+  { id:'p04', cat:'project', title:'Life Journey Map',            desc:'Interactive world travel journal — click anywhere on the map to pin a location, upload trip photos, and write diary entries. All data saved locally in the browser. Geocoding powered by Nominatim.', tags:['Leaflet.js','HTML','localStorage'], emoji:'🗺️', gradient:'g5', wide:true,  url:'https://winnieshih1107.github.io/travel/', label:'View Demo', url2:'https://github.com/winnieshih1107/travel#readme', label2:'操作說明' },
+  { id:'p07', cat:'tool',    title:'薪資計算系統',               desc:'台灣學術機構專任助理薪資試算工具，依學歷與年資套用 2024 年官方薪資標準，自動計算勞健保及退休金提撥，支援多人試算並匯出 CSV 報表。',                                                                                                tags:['HTML','JavaScript','CSV'],          emoji:'💰', gradient:'g2', wide:false, url:'https://winnieshih1107.github.io/salary/', label:'View Demo', url2:'https://github.com/winnieshih1107/salary#readme', label2:'操作說明' },
 ];
 
 // ── STORAGE ──────────────────────────────────────────────────────────────
 function getProjects() {
-  const saved = localStorage.getItem('cv_projects_v2');
+  const saved = localStorage.getItem('cv_projects_v3');
   return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(PROJECTS_DEFAULT));
 }
 function saveProjects(list) {
-  localStorage.setItem('cv_projects_v2', JSON.stringify(list));
+  localStorage.setItem('cv_projects_v3', JSON.stringify(list));
 }
 
 // ── RENDER ───────────────────────────────────────────────────────────────
@@ -829,15 +850,29 @@ function buildCardHTML(p, idx) {
 }
 
 function renderProjects() {
-  const grid = document.getElementById('worksGrid');
-  const list = getProjects();
-  grid.innerHTML = list.map((p, i) => buildCardHTML(p, i)).join('');
-  // re-attach reveal observer
-  grid.querySelectorAll('.reveal').forEach((el, i) => {
+  const wrapper  = document.getElementById('worksGrid');
+  const list     = getProjects();
+  const projects = list.filter(p => p.cat !== 'tool');
+  const tools    = list.filter(p => p.cat === 'tool');
+
+  const makeSection = (eyebrow, titleZh, titleEn, items) =>
+    `<div class="works-section">
+      <div class="cat-header reveal">
+        <span class="cat-eyebrow">${eyebrow}</span>
+        <h3 class="cat-title">${titleZh}<span class="cat-en">${titleEn}</span></h3>
+      </div>
+      <div class="works-grid">${items.map((p, i) => buildCardHTML(p, i)).join('')}</div>
+    </div>`;
+
+  let html = '';
+  if (projects.length) html += makeSection('Selected Works', '專案', 'Projects', projects);
+  if (tools.length)    html += makeSection('Utilities', '小工具', 'Tools', tools);
+
+  wrapper.innerHTML = html;
+  wrapper.querySelectorAll('.reveal').forEach((el, i) => {
     el.style.transitionDelay = `${(i % 2) * 0.1}s`;
     revealObserver.observe(el);
   });
-  // attach drag handlers in admin mode
   if (document.body.classList.contains('admin-mode')) attachDrag();
 }
 
@@ -942,7 +977,7 @@ function exitAdmin() {
 }
 function resetAll() {
   if (!confirm('確定要還原所有專案至預設？（自訂排序、新增和修改將全部清除）')) return;
-  localStorage.removeItem('cv_projects_v2');
+  localStorage.removeItem('cv_projects_v3');
   renderProjects();
   if (document.body.classList.contains('admin-mode')) attachDrag();
 }
@@ -970,6 +1005,7 @@ function openEdit(id) {
   document.getElementById('editTags').value     = p.tags.join(', ');
   document.getElementById('editEmoji').value    = p.emoji;
   document.getElementById('editGradient').value = p.gradient;
+  document.getElementById('editCat').value      = p.cat || 'project';
   document.getElementById('editWide').checked   = p.wide;
   document.getElementById('editLabel').value    = p.label;
   document.getElementById('editUrl').value      = p.url;
@@ -998,6 +1034,7 @@ function saveEdit() {
     tags:     document.getElementById('editTags').value.split(',').map(t => t.trim()).filter(Boolean),
     emoji:    document.getElementById('editEmoji').value.trim() || '📁',
     gradient: document.getElementById('editGradient').value,
+    cat:      document.getElementById('editCat').value,
     wide:     document.getElementById('editWide').checked,
     label:    document.getElementById('editLabel').value.trim() || 'View Demo',
     url,
@@ -1015,6 +1052,7 @@ function openAddModal() {
   ['addTitle','addDesc','addTags','addUrl','addUrl2'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('addEmoji').value    = '🚀';
   document.getElementById('addGradient').value = 'g1';
+  document.getElementById('addCat').value      = 'project';
   document.getElementById('addLabel').value    = 'View Demo';
   document.getElementById('addLabel2').value   = '操作說明';
   document.getElementById('addWide').checked   = false;
@@ -1038,6 +1076,7 @@ function saveAdd() {
     tags:     document.getElementById('addTags').value.split(',').map(t => t.trim()).filter(Boolean),
     emoji:    document.getElementById('addEmoji').value.trim() || '🚀',
     gradient: document.getElementById('addGradient').value,
+    cat:      document.getElementById('addCat').value,
     wide:     document.getElementById('addWide').checked,
     label:    document.getElementById('addLabel').value.trim() || 'View Demo',
     url,
