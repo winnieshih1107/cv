@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>猛健樂記錄 — Weight Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Noto+Sans+TC:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#08080A; --surface:#111114; --surface-2:#17171B;
+    --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.16);
+    --white:#fff; --muted:rgba(255,255,255,.42); --muted-2:rgba(255,255,255,.62);
+    --gold:#E5C349; --mint:#7FD1AE; --warn:#F0A868; --danger:#E4736B;
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:'Inter','Noto Sans TC',system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+    --r:14px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{font-size:16px}
+  body{font-family:var(--sans);background:var(--bg);color:var(--white);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  button,input,select,textarea{font-family:inherit;font-size:1rem;color:inherit}
+  ::selection{background:rgba(229,195,73,.3)}
+  [hidden]{display:none!important}
+
+  /* ── HEADER ── */
+  header{padding:2.6rem 5% 1.6rem;border-bottom:1px solid var(--border)}
+  .wrap{max-width:1120px;margin:0 auto}
+  .brand{display:flex;align-items:baseline;gap:.9rem;flex-wrap:wrap}
+  h1{font-family:var(--serif);font-size:clamp(1.7rem,4.6vw,2.5rem);font-weight:900;letter-spacing:.01em}
+  h1 em{font-style:italic;color:var(--gold)}
+  .brand-sub{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .back{display:inline-block;margin-top:.9rem;font-size:.78rem;color:var(--muted);text-decoration:none;transition:color .2s}
+  .back:hover{color:var(--gold)}
+
+  /* ── STATS ── */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-top:1.8rem}
+  .stat{background:var(--surface);padding:1rem .9rem;text-align:center}
+  .stat-num{font-family:var(--serif);font-size:clamp(1.3rem,4vw,1.9rem);font-weight:700;line-height:1.15}
+  .stat-num small{font-size:.5em;font-weight:400;color:var(--muted);margin-left:.15em}
+  .stat-label{font-size:.68rem;letter-spacing:.1em;color:var(--muted);margin-top:.25rem}
+  .stat.is-gold .stat-num{color:var(--gold)}
+  .stat.is-mint .stat-num{color:var(--mint)}
+  .progress-row{margin-top:1rem}
+  .progress-meta{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:.45rem}
+  .bar{height:7px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--mint));border-radius:99px;transition:width .5s ease}
+
+  /* ── LAYOUT ── */
+  main{padding:2rem 5% 5rem}
+  .cols{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:1.8rem;align-items:start}
+  @media(max-width:900px){.cols{grid-template-columns:1fr}}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.4rem}
+  .card + .card{margin-top:1.3rem}
+  .card-title{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:1.1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+  .card-title span.zh{letter-spacing:.06em;text-transform:none;font-size:.9rem;color:var(--white);font-weight:500}
+
+  form .field{margin-bottom:.95rem}
+  label{display:block;font-size:.76rem;color:var(--muted-2);margin-bottom:.35rem;letter-spacing:.02em}
+  input[type=text],input[type=date],input[type=number],textarea,select{
+    width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;
+    padding:.62rem .75rem;font-size:.92rem;transition:border-color .18s,background .18s}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold);background:#1c1c21}
+  textarea{resize:vertical;min-height:52px;line-height:1.5}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem}
+  .hint{font-size:.7rem;color:var(--muted);margin-top:.3rem}
+  .divider{height:1px;background:var(--border);margin:1.2rem 0}
+  .sec-label{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
+
+  .check{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--muted-2);cursor:pointer;user-select:none}
+  .check input{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
+
+  .chips{display:flex;flex-wrap:wrap;gap:.4rem}
+  .chip{padding:.34rem .7rem;border-radius:99px;border:1px solid var(--border-strong);background:transparent;
+    font-size:.78rem;color:var(--muted-2);cursor:pointer;transition:all .16s}
+  .chip:hover{border-color:var(--warn);color:var(--white)}
+  .chip.on{background:rgba(240,168,104,.14);border-color:var(--warn);color:var(--warn)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.7rem 1.1rem;border-radius:9px;
+    border:1px solid transparent;cursor:pointer;font-size:.85rem;font-weight:600;letter-spacing:.03em;transition:all .18s}
+  .btn-primary{background:var(--gold);color:#111;width:100%}
+  .btn-primary:hover{background:#f0d260}
+  .btn-ghost{background:transparent;border-color:var(--border-strong);color:var(--muted-2)}
+  .btn-ghost:hover{border-color:var(--white);color:var(--white)}
+  .btn-row{display:flex;gap:.6rem;margin-top:1.1rem}
+  .btn-sm{padding:.4rem .7rem;font-size:.74rem;font-weight:500;border-radius:7px}
+  .btn-danger:hover{border-color:var(--danger);color:var(--danger)}
+
+  /* ── RECORDS ── */
+  .rec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.3rem 1.4rem;margin-bottom:1rem;transition:border-color .2s}
+  .rec:hover{border-color:var(--border-strong)}
+  .rec.editing{border-color:var(--gold)}
+  .rec-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.9rem}
+  .rec-title{font-size:1.02rem;font-weight:700;letter-spacing:.01em}
+  .rec-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.45rem}
+  .tag{font-size:.7rem;padding:.2rem .55rem;border-radius:99px;border:1px solid var(--border-strong);color:var(--muted-2)}
+  .tag.shot{color:var(--gold);border-color:rgba(229,195,73,.45);background:rgba(229,195,73,.08)}
+  .tag.down{color:var(--mint);border-color:rgba(127,209,174,.45)}
+  .tag.up{color:var(--warn);border-color:rgba(240,168,104,.45)}
+  .rec-acts{display:flex;gap:.45rem;flex-shrink:0}
+  .rec-body{font-size:.9rem;color:var(--muted-2)}
+  .line{display:flex;gap:.5rem;padding:.22rem 0}
+  .line b{color:var(--muted);font-weight:400;min-width:4.6em;flex-shrink:0}
+  .line span{color:rgba(255,255,255,.86);white-space:pre-wrap}
+  .rec-weights{display:flex;gap:1.6rem;flex-wrap:wrap;padding:.7rem 0;margin-bottom:.4rem;border-bottom:1px dashed var(--border)}
+  .w-item .w-num{font-family:var(--serif);font-size:1.25rem;font-weight:700}
+  .w-item .w-lab{font-size:.68rem;color:var(--muted);letter-spacing:.08em}
+  .se{margin-top:.8rem;padding-top:.7rem;border-top:1px dashed var(--border);font-size:.85rem;color:var(--warn)}
+  .empty{border:1px dashed var(--border-strong);border-radius:var(--r);padding:3rem 1.5rem;text-align:center;color:var(--muted)}
+  .empty strong{display:block;color:var(--muted-2);font-weight:500;margin-bottom:.4rem}
+
+  /* ── CHART ── */
+  .chart-wrap{overflow-x:auto}
+  svg.chart{width:100%;min-width:280px;height:200px;display:block}
+  .legend{display:flex;gap:1.1rem;flex-wrap:wrap;font-size:.72rem;color:var(--muted);margin-top:.7rem}
+  .legend i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:.35rem}
+
+  .toolbar{display:flex;gap:.6rem;flex-wrap:wrap}
+  .toast{position:fixed;left:50%;bottom:1.8rem;transform:translate(-50%,140%);background:var(--gold);color:#111;
+    padding:.7rem 1.3rem;border-radius:99px;font-size:.85rem;font-weight:600;z-index:99;transition:transform .3s ease;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  .toast.show{transform:translate(-50%,0)}
+  footer{padding:2rem 5% 3rem;text-align:center;font-size:.72rem;color:var(--muted);border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <h1><em>猛</em>健樂記錄</h1>
+      <div class="brand-sub">Mounjaro Journal</div>
+    </div>
+    <a class="back" href="./index.html">← 回到 Portfolio</a>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="sDays">0</div><div class="stat-label">記錄天數</div></div>
+      <div class="stat is-gold"><div class="stat-num" id="sNow">–<small>kg</small></div><div class="stat-label">目前體重</div></div>
+      <div class="stat is-mint"><div class="stat-num" id="sLost">0<small>kg</small></div><div class="stat-label">已減少</div></div>
+      <div class="stat"><div class="stat-num" id="sLeft">–<small>kg</small></div><div class="stat-label">距離目標</div></div>
+    </div>
+
+    <div class="progress-row">
+      <div class="progress-meta"><span id="pFrom">原始 –</span><span id="pPct">0%</span><span id="pTo">目標 –</span></div>
+      <div class="bar"><i id="pBar" style="width:0%"></i></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="cols">
+
+    <!-- ══ LEFT: FORM ══ -->
+    <section>
+      <div class="card">
+        <div class="card-title"><span class="zh" id="formTitle">新增今日記錄</span><span id="dayBadge">DAY 1</span></div>
+        <form id="recForm" autocomplete="off">
+          <input type="hidden" id="fId" />
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="fDate">日期</label>
+              <input type="date" id="fDate" required />
+            </div>
+            <div class="field">
+              <label for="fDay">Day（自動）</label>
+              <input type="number" id="fDay" min="1" step="1" placeholder="自動計算" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="check"><input type="checkbox" id="fShot" /> 今天有施打💉</label>
+          </div>
+
+          <div class="grid-2" id="shotFields">
+            <div class="field">
+              <label for="fDose">劑量 (mg)</label>
+              <input type="text" id="fDose" placeholder="2.5" />
+            </div>
+            <div class="field">
+              <label for="fShotNo">第幾劑</label>
+              <input type="number" id="fShotNo" min="1" step="1" placeholder="1" />
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="sec-label">體重 Weight</div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="fStart">原始</label>
+              <input type="number" id="fStart" step="0.1" placeholder="45" />
+            </div>
+            <div class="field">
+              <label for="fGoal">目標</label>
+              <input type="number" id="fGoal" step="0.1" placeholder="35" />
+            </div>
+            <div class="field">
+              <label for="fToday">今日</label>
+              <input type="number" id="fToday" step="0.1" placeholder="45" />
+            </div>
+          </div>
+          <div class="hint">原始／目標體重會自動記住，下次不用重填。</div>
+
+          <div class="divider"></div>
+          <div class="sec-label">飲食紀錄 Meals</div>
+          <div class="field"><label for="fB">早餐</label><textarea id="fB" placeholder="無"></textarea></div>
+          <div class="field"><label for="fL">午餐</label><textarea id="fL" placeholder="藍莓優格碗、滷棒腿*2⋯"></textarea></div>
+          <div class="field"><label for="fD">晚餐</label><textarea id="fD" placeholder="半條鮭魚、兩顆水煮蛋⋯"></textarea></div>
+          <div class="field"><label for="fS">點心／飲水（選填）</label><textarea id="fS" placeholder="無糖豆漿、水 2000ml"></textarea></div>
+
+          <div class="divider"></div>
+          <div class="sec-label">⚠️ 副作用 Side effects</div>
+          <div class="chips" id="seChips"></div>
+          <div class="field" style="margin-top:.7rem">
+            <input type="text" id="fSeOther" placeholder="其他副作用，用、或逗號分隔" />
+          </div>
+
+          <div class="field" style="margin-top:1rem">
+            <label for="fNote">備註（選填）</label>
+            <textarea id="fNote" placeholder="運動、睡眠、心情⋯"></textarea>
+          </div>
+
+          <button class="btn btn-primary" type="submit" id="submitBtn">儲存記錄</button>
+          <div class="btn-row" id="cancelRow" hidden>
+            <button class="btn btn-ghost" type="button" id="cancelBtn" style="width:100%">取消編輯</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="zh">資料管理</span></div>
+        <div class="toolbar">
+          <button class="btn btn-ghost btn-sm" id="copyAllBtn">複製全部文字</button>
+          <button class="btn btn-ghost btn-sm" id="exportBtn">匯出 JSON</button>
+          <button class="btn btn-ghost btn-sm" id="importBtn">匯入 JSON</button>
+          <button class="btn btn-ghost btn-sm btn-danger" id="clearBtn">清除全部</button>
+        </div>
+        <input type="file" id="fileInput" accept="application/json" hidden />
+        <div class="hint" style="margin-top:.8rem">記錄存在這台裝置的瀏覽器裡（localStorage），換裝置請用匯出／匯入。</div>
+      </div>
+    </section>
+
+    <!-- ══ RIGHT: CHART + RECORDS ══ -->
+    <section>
+      <div class="card" id="chartCard" hidden>
+        <div class="card-title"><span class="zh">體重曲線</span><span id="chartRange"></span></div>
+        <div class="chart-wrap"><svg class="chart" id="chart" viewBox="0 0 620 200" preserveAspectRatio="none"></svg></div>
+        <div class="legend">
+          <span><i style="background:var(--gold)"></i>每日體重</span>
+          <span><i style="background:var(--mint)"></i>目標</span>
+          <span><i style="background:rgba(255,255,255,.28)"></i>原始</span>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin:.3rem 0 1rem"><span class="zh">全部記錄</span><span id="recCount"></span></div>
+      <div id="recList"></div>
+    </section>
+
+  </div>
+</main>
+
+<footer>猛健樂記錄 · 資料僅存於本機瀏覽器 · 本頁不提供醫療建議，用藥請遵醫囑</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  var K_REC='mjl-records-v1', K_SET='mjl-settings-v1';
+  var SE_LIST=['頭暈','心悸','噁心','想吐','胃脹','便祕','腹瀉','胃食道逆流','沒食慾','疲倦','頭痛','失眠'];
+
+  var records=load(K_REC,[]), settings=load(K_SET,{start:'',goal:''});
+  var selectedSE=[], editingId=null;
+
+  function load(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+  function save(){ try{ localStorage.setItem(K_REC,JSON.stringify(records)); localStorage.setItem(K_SET,JSON.stringify(settings)); }catch(e){ toast('無法儲存（瀏覽器封鎖了儲存空間）'); } }
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function num(v){ var n=parseFloat(v); return isFinite(n)?n:null; }
+  function fmtW(n){ return (Math.round(n*10)/10).toString(); }
+
+  function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('show'); },2000); }
+
+  /* ── date helpers ── */
+  function today(){ var d=new Date(); return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
+  function p2(n){ return (n<10?'0':'')+n; }
+  function md(iso){ var a=iso.split('-'); return parseInt(a[1],10)+'/'+parseInt(a[2],10); }
+  function dayDiff(a,b){ return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000); }
+
+  function zh(n){
+    var d=['零','一','二','三','四','五','六','七','八','九'];
+    if(n<10) return d[n];
+    if(n<20) return '十'+(n%10?d[n%10]:'');
+    if(n<100) return d[Math.floor(n/10)]+'十'+(n%10?d[n%10]:'');
+    return String(n);
+  }
+
+  function sorted(){ return records.slice().sort(function(a,b){ return a.date<b.date?-1:a.date>b.date?1:0; }); }
+  function autoDay(date){
+    var s=sorted();
+    if(!s.length) return 1;
+    var first=s[0].date;
+    return Math.max(1, dayDiff(first,date)+1);
+  }
+
+  /* ── 文字輸出，完全比照原本手寫格式 ── */
+  function toText(r){
+    var L=[];
+    L.push('📝'+md(r.date)+'猛健樂記錄Day'+r.day);
+    L.push('');
+    if(r.shot){
+      L.push(md(r.date)+'💉'+(r.dose||'')+'mg第'+zh(r.shotNo||1)+'劑💉');
+      L.push('');
+    }
+    L.push('｜原始體重：'+(r.start!=null?fmtW(r.start):'—'));
+    L.push('｜目標體重：'+(r.goal!=null?fmtW(r.goal):'—'));
+    L.push('｜今日測量體重：'+(r.weight!=null?fmtW(r.weight):'—'));
+    L.push('');
+    L.push('｜飲食紀錄');
+    L.push('｜早餐：'+(r.b||'無'));
+    L.push('｜午餐：'+(r.l||'無'));
+    L.push('｜晚餐：'+(r.d||'無'));
+    if(r.s) L.push('｜點心：'+r.s);
+    if(r.note) L.push('｜備註：'+r.note);
+    L.push('');
+    L.push('⚠️副作用：'+(r.se && r.se.length ? r.se.join('、') : '無'));
+    return L.join('\n');
+  }
+
+  /* ── stats ── */
+  function render(){
+    var s=sorted(), last=s[s.length-1];
+    var start=num(settings.start), goal=num(settings.goal);
+    if(last && last.start!=null) start=last.start;
+    if(last && last.goal!=null) goal=last.goal;
+    var now=last && last.weight!=null ? last.weight : null;
+
+    $('sDays').textContent=records.length;
+    $('sNow').innerHTML = now!=null ? fmtW(now)+'<small>kg</small>' : '–';
+    var lost = (start!=null && now!=null) ? start-now : null;
+    $('sLost').innerHTML = lost!=null ? (lost>=0?'':'+')+fmtW(Math.abs(lost))+'<small>kg</small>' : '0<small>kg</small>';
+    var left = (goal!=null && now!=null) ? now-goal : null;
+    $('sLeft').innerHTML = left!=null ? fmtW(Math.max(0,left))+'<small>kg</small>' : '–';
+
+    var pct=0;
+    if(start!=null && goal!=null && now!=null && start!==goal) pct=Math.max(0,Math.min(100,(start-now)/(start-goal)*100));
+    $('pBar').style.width=pct+'%';
+    $('pPct').textContent=Math.round(pct)+'%';
+    $('pFrom').textContent='原始 '+(start!=null?fmtW(start)+'kg':'–');
+    $('pTo').textContent='目標 '+(goal!=null?fmtW(goal)+'kg':'–');
+
+    $('recCount').textContent=records.length?records.length+' 筆':'';
+    renderList(s);
+    renderChart(s,start,goal);
+    updateDayBadge();
+  }
+
+  function renderList(s){
+    var box=$('recList');
+    if(!s.length){
+      box.innerHTML='<div class="empty"><strong>還沒有任何記錄</strong>從左邊填入第一天的資料，開始你的記錄吧。</div>';
+      return;
+    }
+    var desc=s.slice().reverse(), html='';
+    for(var i=0;i<desc.length;i++){
+      var r=desc[i];
+      var idx=s.indexOf(r), prev=idx>0?s[idx-1]:null;
+      var diff=(prev && prev.weight!=null && r.weight!=null)?r.weight-prev.weight:null;
+      var tags='';
+      if(r.shot) tags+='<span class="tag shot">💉 '+esc(r.dose||'')+'mg · 第'+zh(r.shotNo||1)+'劑</span>';
+      if(diff!=null && Math.abs(diff)>0.001) tags+='<span class="tag '+(diff<0?'down':'up')+'">'+(diff<0?'▼ ':'▲ ')+fmtW(Math.abs(diff))+'kg</span>';
+      if(r.start!=null && r.weight!=null) tags+='<span class="tag">累計 '+(r.start-r.weight>=0?'-':'+')+fmtW(Math.abs(r.start-r.weight))+'kg</span>';
+
+      html+='<article class="rec'+(editingId===r.id?' editing':'')+'" data-id="'+r.id+'">'
+        + '<div class="rec-head"><div>'
+        +   '<div class="rec-title">📝 '+md(r.date)+' 猛健樂記錄 Day'+r.day+'</div>'
+        +   '<div class="rec-tags">'+tags+'</div>'
+        + '</div><div class="rec-acts">'
+        +   '<button class="btn btn-ghost btn-sm" data-act="copy">複製</button>'
+        +   '<button class="btn btn-ghost btn-sm" data-act="edit">編輯</button>'
+        +   '<button class="btn btn-ghost btn-sm btn-danger" data-act="del">刪除</button>'
+        + '</div></div>'
+        + '<div class="rec-weights">'
+        +   wItem('原始體重',r.start)+wItem('目標體重',r.goal)+wItem('今日體重',r.weight)
+        + '</div>'
+        + '<div class="rec-body">'
+        +   '<div class="line"><b>早餐</b><span>'+esc(r.b||'無')+'</span></div>'
+        +   '<div class="line"><b>午餐</b><span>'+esc(r.l||'無')+'</span></div>'
+        +   '<div class="line"><b>晚餐</b><span>'+esc(r.d||'無')+'</span></div>'
+        +   (r.s?'<div class="line"><b>點心</b><span>'+esc(r.s)+'</span></div>':'')
+        +   (r.note?'<div class="line"><b>備註</b><span>'+esc(r.note)+'</span></div>':'')
+        + '</div>'
+        + '<div class="se">⚠️ 副作用：'+(r.se&&r.se.length?esc(r.se.join('、')):'無')+'</div>'
+        + '</article>';
+    }
+    box.innerHTML=html;
+  }
+  function wItem(lab,v){
+    return '<div class="w-item"><div class="w-num">'+(v!=null?fmtW(v):'—')+'</div><div class="w-lab">'+lab+'</div></div>';
+  }
+
+  /* ── chart ── */
+  function renderChart(s,start,goal){
+    var pts=s.filter(function(r){ return r.weight!=null; });
+    if(pts.length<2){ $('chartCard').hidden=true; return; }
+    $('chartCard').hidden=false;
+    $('chartRange').textContent=md(pts[0].date)+' – '+md(pts[pts.length-1].date);
+
+    var W=620,H=200,padL=38,padR=14,padT=16,padB=24;
+    var vals=pts.map(function(r){ return r.weight; });
+    if(goal!=null) vals.push(goal);
+    if(start!=null) vals.push(start);
+    var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals);
+    if(mx-mn<1){ mn-=0.5; mx+=0.5; }
+    var pad=(mx-mn)*0.12; mn-=pad; mx+=pad;
+    var x=function(i){ return padL+(W-padL-padR)*(pts.length===1?0.5:i/(pts.length-1)); };
+    var y=function(v){ return padT+(H-padT-padB)*(1-(v-mn)/(mx-mn)); };
+
+    var svg='';
+    // grid
+    for(var g=0;g<=3;g++){
+      var gv=mn+(mx-mn)*g/3, gy=y(gv);
+      svg+='<line x1="'+padL+'" y1="'+gy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+gy.toFixed(1)+'" stroke="rgba(255,255,255,.06)" stroke-width="1"/>';
+      svg+='<text x="4" y="'+(gy+4).toFixed(1)+'" fill="rgba(255,255,255,.35)" font-size="10">'+fmtW(gv)+'</text>';
+    }
+    if(start!=null) svg+='<line x1="'+padL+'" y1="'+y(start).toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y(start).toFixed(1)+'" stroke="rgba(255,255,255,.28)" stroke-width="1" stroke-dasharray="4 4"/>';
+    if(goal!=null) svg+='<line x1="'+padL+'" y1="'+y(goal).toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y(goal).toFixed(1)+'" stroke="#7FD1AE" stroke-width="1" stroke-dasharray="5 4"/>';
+
+    var d='',area='';
+    pts.forEach(function(r,i){
+      var px=x(i).toFixed(1), py=y(r.weight).toFixed(1);
+      d+=(i?' L':'M')+px+' '+py;
+    });
+    area=d+' L'+x(pts.length-1).toFixed(1)+' '+(H-padB)+' L'+x(0).toFixed(1)+' '+(H-padB)+' Z';
+    svg+='<path d="'+area+'" fill="rgba(229,195,73,.10)"/>';
+    svg+='<path d="'+d+'" fill="none" stroke="#E5C349" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    pts.forEach(function(r,i){
+      svg+='<circle cx="'+x(i).toFixed(1)+'" cy="'+y(r.weight).toFixed(1)+'" r="3" fill="#08080A" stroke="#E5C349" stroke-width="2"><title>'+md(r.date)+' · '+fmtW(r.weight)+'kg</title></circle>';
+    });
+    svg+='<text x="'+x(0)+'" y="'+(H-6)+'" fill="rgba(255,255,255,.35)" font-size="10">'+md(pts[0].date)+'</text>';
+    svg+='<text x="'+(W-padR)+'" y="'+(H-6)+'" fill="rgba(255,255,255,.35)" font-size="10" text-anchor="end">'+md(pts[pts.length-1].date)+'</text>';
+    $('chart').innerHTML=svg;
+  }
+
+  /* ── side-effect chips ── */
+  function buildChips(){
+    var box=$('seChips'); box.innerHTML='';
+    SE_LIST.forEach(function(name){
+      var b=document.createElement('button');
+      b.type='button'; b.className='chip'; b.textContent=name;
+      b.onclick=function(){
+        var i=selectedSE.indexOf(name);
+        if(i<0) selectedSE.push(name); else selectedSE.splice(i,1);
+        syncChips();
+      };
+      box.appendChild(b);
+    });
+  }
+  function syncChips(){
+    var kids=$('seChips').children;
+    for(var i=0;i<kids.length;i++) kids[i].classList.toggle('on', selectedSE.indexOf(kids[i].textContent)>=0);
+  }
+
+  function updateDayBadge(){
+    var date=$('fDate').value||today();
+    var manual=$('fDay').value;
+    $('dayBadge').textContent='DAY '+(manual?manual:autoDay(date));
+  }
+
+  /* ── form ── */
+  function resetForm(){
+    editingId=null; selectedSE=[]; syncChips();
+    $('recForm').reset();
+    $('fId').value='';
+    $('fDate').value=today();
+    $('fStart').value=settings.start||'';
+    $('fGoal').value=settings.goal||'';
+    var s=sorted(), lastShot=null;
+    for(var i=s.length-1;i>=0;i--){ if(s[i].shot){ lastShot=s[i]; break; } }
+    if(lastShot){ $('fDose').value=lastShot.dose||''; $('fShotNo').value=(lastShot.shotNo||1)+1; }
+    $('formTitle').textContent='新增今日記錄';
+    $('submitBtn').textContent='儲存記錄';
+    $('cancelRow').hidden=true;
+    syncShot();
+    updateDayBadge();
+  }
+
+  function fillForm(r){
+    editingId=r.id;
+    $('fId').value=r.id;
+    $('fDate').value=r.date;
+    $('fDay').value=r.day;
+    $('fShot').checked=!!r.shot;
+    $('fDose').value=r.dose||'';
+    $('fShotNo').value=r.shotNo||'';
+    $('fStart').value=r.start!=null?r.start:'';
+    $('fGoal').value=r.goal!=null?r.goal:'';
+    $('fToday').value=r.weight!=null?r.weight:'';
+    $('fB').value=r.b||''; $('fL').value=r.l||''; $('fD').value=r.d||''; $('fS').value=r.s||'';
+    $('fNote').value=r.note||'';
+    selectedSE=[]; var other=[];
+    (r.se||[]).forEach(function(x){ if(SE_LIST.indexOf(x)>=0) selectedSE.push(x); else other.push(x); });
+    $('fSeOther').value=other.join('、');
+    syncChips();
+    $('formTitle').textContent='編輯 '+md(r.date)+' 記錄';
+    $('submitBtn').textContent='更新記錄';
+    $('cancelRow').hidden=false;
+    syncShot();
+    updateDayBadge();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  $('recForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var date=$('fDate').value||today();
+    var other=$('fSeOther').value.split(/[、,，\s]+/).map(function(s){return s.trim();}).filter(Boolean);
+    var rec={
+      id: editingId||('r'+Date.now()+Math.random().toString(36).slice(2,6)),
+      date: date,
+      day: parseInt($('fDay').value,10)||autoDay(date),
+      shot: $('fShot').checked,
+      dose: $('fDose').value.trim(),
+      shotNo: parseInt($('fShotNo').value,10)||null,
+      start: num($('fStart').value),
+      goal: num($('fGoal').value),
+      weight: num($('fToday').value),
+      b:$('fB').value.trim(), l:$('fL').value.trim(), d:$('fD').value.trim(), s:$('fS').value.trim(),
+      note:$('fNote').value.trim(),
+      se: selectedSE.concat(other)
+    };
+    if(rec.start!=null) settings.start=rec.start;
+    if(rec.goal!=null) settings.goal=rec.goal;
+
+    if(editingId){
+      records=records.map(function(x){ return x.id===editingId?rec:x; });
+      toast('已更新記錄');
+    }else{
+      var dup=records.filter(function(x){ return x.date===rec.date; })[0];
+      if(dup && !confirm(md(rec.date)+' 已經有一筆記錄了，還是要新增一筆嗎？')) return;
+      records.push(rec);
+      toast('已儲存 Day'+rec.day);
+    }
+    save(); resetForm(); render();
+  });
+
+  $('cancelBtn').onclick=function(){ resetForm(); render(); };
+  $('fDate').addEventListener('change',updateDayBadge);
+  $('fDay').addEventListener('input',updateDayBadge);
+  function syncShot(){ $('shotFields').style.display=$('fShot').checked?'grid':'none'; }
+  $('fShot').addEventListener('change',syncShot);
+
+  $('recList').addEventListener('click',function(e){
+    var btn=e.target.closest('[data-act]'); if(!btn) return;
+    var id=btn.closest('.rec').getAttribute('data-id');
+    var r=records.filter(function(x){ return x.id===id; })[0]; if(!r) return;
+    var act=btn.getAttribute('data-act');
+    if(act==='copy'){ copy(toText(r),'已複製 '+md(r.date)+' 的記錄'); }
+    if(act==='edit'){ fillForm(r); render(); }
+    if(act==='del'){
+      if(confirm('確定刪除 '+md(r.date)+' Day'+r.day+' 的記錄？')){
+        records=records.filter(function(x){ return x.id!==id; });
+        if(editingId===id) resetForm();
+        save(); render(); toast('已刪除');
+      }
+    }
+  });
+
+  function copy(text,msg){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ toast(msg); },function(){ fallback(text,msg); });
+    } else fallback(text,msg);
+  }
+  function fallback(text,msg){
+    var ta=document.createElement('textarea');
+    ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); toast(msg); }catch(e){ toast('複製失敗，請手動選取'); }
+    document.body.removeChild(ta);
+  }
+
+  $('copyAllBtn').onclick=function(){
+    if(!records.length) return toast('還沒有記錄');
+    copy(sorted().map(toText).join('\n\n──────────\n\n'),'已複製全部 '+records.length+' 筆記錄');
+  };
+  $('exportBtn').onclick=function(){
+    var blob=new Blob([JSON.stringify({records:records,settings:settings},null,2)],{type:'application/json'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='猛健樂記錄-'+today()+'.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(a.href); },1000);
+  };
+  $('importBtn').onclick=function(){ $('fileInput').click(); };
+  $('fileInput').addEventListener('change',function(){
+    var f=this.files[0]; if(!f) return;
+    var rd=new FileReader();
+    rd.onload=function(){
+      try{
+        var data=JSON.parse(rd.result);
+        var incoming=Array.isArray(data)?data:(data.records||[]);
+        if(!Array.isArray(incoming)) throw new Error('bad');
+        var ids={}; records.forEach(function(r){ ids[r.id]=1; });
+        var added=0;
+        incoming.forEach(function(r){ if(r && r.date && !ids[r.id]){ records.push(r); added++; } });
+        if(data.settings) settings=data.settings;
+        save(); resetForm(); render(); toast('已匯入 '+added+' 筆記錄');
+      }catch(e){ toast('檔案格式不正確'); }
+    };
+    rd.readAsText(f); this.value='';
+  });
+  $('clearBtn').onclick=function(){
+    if(!records.length) return toast('沒有資料可清除');
+    if(confirm('確定要刪除全部 '+records.length+' 筆記錄嗎？此動作無法復原（建議先匯出 JSON）。')){
+      records=[]; save(); resetForm(); render(); toast('已清除全部記錄');
+    }
+  };
+
+  /* ── init ── */
+  buildChips();
+  resetForm();
+  render();
+})();
+</script>
+</body>
+</html>
