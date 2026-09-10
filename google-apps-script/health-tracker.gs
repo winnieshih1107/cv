@@ -1,8 +1,11 @@
 /**
  * 猛健樂記錄 — Google 試算表後端 (Google Apps Script)
  *
+ * 這份腳本已經綁定到試算表「飲食記錄」(SPREADSHEET_ID)，記錄會寫進裡面
+ * 名為「猛健樂記錄」的分頁，原本的工作表1 不會被動到。
+ *
  * 設定步驟：
- * 1. 開一個新的 Google 試算表
+ * 1. 開啟試算表「飲食記錄」
  * 2. 上方選單「擴充功能」→「Apps Script」
  * 3. 把編輯器裡原本的內容全部刪掉，貼上這整份程式碼，按存檔
  * 4. 右上角「部署」→「新增部署作業」→ 類型選「網頁應用程式」
@@ -11,6 +14,8 @@
  * 6. 回到記錄網頁，貼進「雲端試算表」欄位，按「測試連線」
  */
 
+/** 記錄要寫到哪份試算表：留空＝用開啟這份腳本的那份試算表 */
+var SPREADSHEET_ID = '1-spzjXKK1SK_Fc0nAhyQf8HcWMTov-MQKIzYyD9i_SE'; // 飲食記錄
 var SHEET_NAME = '猛健樂記錄';
 var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
                '原始體重', '目標體重', '今日體重',
@@ -42,8 +47,15 @@ function out(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function book() {
+  if (SPREADSHEET_ID) {
+    try { return SpreadsheetApp.openById(SPREADSHEET_ID); } catch (e) {}
+  }
+  return SpreadsheetApp.getActiveSpreadsheet();
+}
+
 function sheet() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = book();
   var sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(SHEET_NAME);
