@@ -1,11 +1,11 @@
 /**
  * 猛健樂記錄 — Google 試算表後端 (Google Apps Script)
  *
- * 這份腳本已經綁定到試算表「飲食記錄」(SPREADSHEET_ID)，記錄會寫進裡面
- * 名為「猛健樂記錄」的分頁，原本的工作表1 不會被動到。
+ * 記錄會寫進試算表裡名為「猛健樂記錄」的分頁，原本的工作表不會被動到。
+ * 試算表本身「不需要」開放共用，腳本是用你自己的身分執行的。
  *
  * 設定步驟：
- * 1. 開啟試算表「飲食記錄」
+ * 1. 開啟你要存記錄的試算表
  * 2. 上方選單「擴充功能」→「Apps Script」
  * 3. 把編輯器裡原本的內容全部刪掉，貼上這整份程式碼，按存檔
  * 4. 右上角「部署」→「新增部署作業」→ 類型選「網頁應用程式」
@@ -14,8 +14,13 @@
  * 6. 回到記錄網頁，貼進「雲端試算表」欄位，按「測試連線」
  */
 
-/** 記錄要寫到哪份試算表：留空＝用開啟這份腳本的那份試算表 */
-var SPREADSHEET_ID = '1-spzjXKK1SK_Fc0nAhyQf8HcWMTov-MQKIzYyD9i_SE'; // 飲食記錄
+/**
+ * 記錄要寫到哪份試算表。
+ * 留空＝寫進「開啟這份腳本的那份試算表」，也就是你從試算表選單
+ * 「擴充功能 → Apps Script」打開的那一份，通常不用改。
+ * 只有在用獨立的 Apps Script 專案時，才需要填試算表網址中間那段 ID。
+ */
+var SPREADSHEET_ID = '';
 var SHEET_NAME = '猛健樂記錄';
 var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
                '原始體重', '目標體重', '今日體重',
@@ -26,20 +31,42 @@ function doPost(e) {
     var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (body.action === 'push') {
       writeAll(body.records || []);
-      return out({ ok: true, action: 'push', count: (body.records || []).length });
+      return out(info({ action: 'push', count: (body.records || []).length }));
     }
-    return out({ ok: true, action: body.action || 'pull', records: readAll() });
+    return out(info({ action: body.action || 'pull', records: readAll() }));
   } catch (err) {
     return out({ ok: false, error: String(err) });
   }
 }
 
-function doGet() {
+/**
+ * GET 也可以用，並支援 JSONP (?callback=xxx)。
+ * 手機瀏覽器擋掉跨網域回應時，網頁會改用這條路讀資料。
+ */
+function doGet(e) {
+  var payload;
   try {
-    return out({ ok: true, action: 'pull', records: readAll() });
+    payload = info({ action: 'pull', records: readAll() });
   } catch (err) {
-    return out({ ok: false, error: String(err) });
+    payload = { ok: false, error: String(err) };
   }
+  var cb = e && e.parameter && e.parameter.callback;
+  if (cb && /^[A-Za-z0-9_$]+$/.test(cb)) {
+    return ContentService.createTextOutput(cb + '(' + JSON.stringify(payload) + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return out(payload);
+}
+
+/** 回應裡附上試算表名稱與網址，網頁就不需要把試算表 ID 寫死 */
+function info(obj) {
+  obj.ok = true;
+  try {
+    var ss = book();
+    obj.title = ss.getName();
+    obj.url = ss.getUrl();
+  } catch (e) {}
+  return obj;
 }
 
 function out(obj) {
