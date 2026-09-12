@@ -172,7 +172,7 @@
 
     <div class="stats">
       <div class="stat"><div class="stat-num" id="sDays">0</div><div class="stat-label">記錄天數</div></div>
-      <div class="stat is-gold"><div class="stat-num" id="sNow">–<small>kg</small></div><div class="stat-label">目前體重</div></div>
+      <div class="stat is-gold"><div class="stat-num" id="sNow">–<small>kg</small></div><div class="stat-label" id="sNowLabel">目前體重</div></div>
       <div class="stat is-mint"><div class="stat-num" id="sLost">0<small>kg</small></div><div class="stat-label">已減少</div></div>
       <div class="stat"><div class="stat-num" id="sLeft">–<small>kg</small></div><div class="stat-label">距離目標</div></div>
     </div>
@@ -227,15 +227,15 @@
           <div class="grid-3">
             <div class="field">
               <label for="fStart">原始</label>
-              <input type="number" id="fStart" step="0.1" placeholder="45" />
+              <input type="number" id="fStart" step="0.1" placeholder="kg" />
             </div>
             <div class="field">
               <label for="fGoal">目標</label>
-              <input type="number" id="fGoal" step="0.1" placeholder="35" />
+              <input type="number" id="fGoal" step="0.1" placeholder="kg" />
             </div>
             <div class="field">
               <label for="fToday">今日</label>
-              <input type="number" id="fToday" step="0.1" placeholder="45" />
+              <input type="number" id="fToday" step="0.1" placeholder="kg" />
             </div>
           </div>
           <div class="hint">原始／目標體重會自動記住，下次不用重填。</div>
@@ -421,14 +421,22 @@
   }
 
   /* ── stats ── */
+  /** 最近一筆有填這個欄位的記錄（今天還沒量體重也不會讓統計變空白） */
+  function latest(field){
+    var s=sorted();
+    for(var i=s.length-1;i>=0;i--){ if(s[i][field]!=null && s[i][field]!=='') return s[i]; }
+    return null;
+  }
+
   function render(){
-    var s=sorted(), last=s[s.length-1];
-    var start=num(settings.start), goal=num(settings.goal);
-    if(last && last.start!=null) start=last.start;
-    if(last && last.goal!=null) goal=last.goal;
-    var now=last && last.weight!=null ? last.weight : null;
+    var s=sorted();
+    var rStart=latest('start'), rGoal=latest('goal'), rWeight=latest('weight');
+    var start=rStart?rStart.start:num(settings.start);
+    var goal=rGoal?rGoal.goal:num(settings.goal);
+    var now=rWeight?rWeight.weight:null;
 
     $('sDays').textContent=records.length;
+    $('sNowLabel').textContent = rWeight ? '目前體重 · '+md(rWeight.date) : '目前體重';
     $('sNow').innerHTML = now!=null ? fmtW(now)+'<small>kg</small>' : '–';
     var lost = (start!=null && now!=null) ? start-now : null;
     $('sLost').innerHTML = lost!=null ? (lost>=0?'':'+')+fmtW(Math.abs(lost))+'<small>kg</small>' : '0<small>kg</small>';
@@ -865,8 +873,9 @@
     apiRead().then(function(d){
       noteSheet(d);
       records=(d.records||[]).filter(function(r){ return r && r.date; });
-      var last=sorted()[records.length-1];
-      if(last){ if(last.start!=null) settings.start=last.start; if(last.goal!=null) settings.goal=last.goal; }
+      var rs=latest('start'), rg=latest('goal');
+      if(rs) settings.start=rs.start;
+      if(rg) settings.goal=rg.goal;
       settings.lastSync=stamp(); save(); resetForm(); render();
       setDot('on','已同步');
       setStatus('已從試算表下載 '+records.length+' 筆 · '+settings.lastSync,'ok');
