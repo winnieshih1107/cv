@@ -129,7 +129,8 @@ function writeAll(records) {
       numOrBlank(r.kcalIn),
       numOrBlank(r.kcalOut),
       (r.kcalIn === null || r.kcalIn === undefined ||
-       r.kcalOut === null || r.kcalOut === undefined) ? '' : (r.kcalOut - r.kcalIn),
+       r.kcalOut === null || r.kcalOut === undefined)
+        ? '' : (r.kcalOut + (r.exKcal || 0) - r.kcalIn),
       (r.exTypes || []).join('、'),
       numOrBlank(r.exMins),
       numOrBlank(r.exKcal),

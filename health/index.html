@@ -281,15 +281,15 @@
           <div class="grid-3">
             <div class="field">
               <label for="fStart">原始</label>
-              <input type="number" id="fStart" step="0.1" placeholder="kg" />
+              <input type="number" id="fStart" step="any" placeholder="kg" />
             </div>
             <div class="field">
               <label for="fGoal">目標</label>
-              <input type="number" id="fGoal" step="0.1" placeholder="kg" />
+              <input type="number" id="fGoal" step="any" placeholder="kg" />
             </div>
             <div class="field">
               <label for="fToday">今日</label>
-              <input type="number" id="fToday" step="0.1" placeholder="kg" />
+              <input type="number" id="fToday" step="any" placeholder="kg" />
             </div>
           </div>
           <div class="hint">原始／目標體重會自動記住，下次不用重填。</div>
@@ -303,11 +303,11 @@
           <div class="grid-2">
             <div class="field">
               <label for="fKcal">食物熱量粗估 (kcal)</label>
-              <input type="number" id="fKcal" min="0" step="10" inputmode="numeric" placeholder="吃進來" />
+              <input type="number" id="fKcal" min="0" step="any" inputmode="numeric" placeholder="吃進來" />
             </div>
             <div class="field">
               <label for="fKcalOut">身體消耗總熱量 (kcal)</label>
-              <input type="number" id="fKcalOut" min="0" step="10" inputmode="numeric" placeholder="手錶／App" />
+              <input type="number" id="fKcalOut" min="0" step="any" inputmode="numeric" placeholder="手錶／App" />
             </div>
           </div>
           <div class="hint" id="deficitHint">兩欄都填就會算出當日熱量赤字（消耗 − 食物）。</div>
@@ -318,11 +318,11 @@
           <div class="grid-2" style="margin-top:.75rem">
             <div class="field">
               <label for="fExMin">時間（分鐘）</label>
-              <input type="number" id="fExMin" min="0" step="1" placeholder="0" />
+              <input type="number" id="fExMin" min="0" step="any" placeholder="0" />
             </div>
             <div class="field">
               <label for="fExKcal">消耗（kcal，選填）</label>
-              <input type="number" id="fExKcal" min="0" step="1" placeholder="0" />
+              <input type="number" id="fExKcal" min="0" step="any" placeholder="0" />
             </div>
           </div>
           <div class="field">
@@ -392,7 +392,7 @@
               </div>
               <div class="field">
                 <label for="eAmount">金額 (NT$)</label>
-                <input type="number" id="eAmount" step="1" min="0" inputmode="decimal" placeholder="0" required />
+                <input type="number" id="eAmount" step="any" min="0" inputmode="decimal" placeholder="0" required />
               </div>
             </div>
 
@@ -515,7 +515,7 @@
   var EX_TYPES=['走路','跑步','腳踏車','重訓','游泳','瑜伽','有氧','伸展','其他'];
   var SE_LIST=['頭暈','心悸','噁心','想吐','胃脹','便祕','腹瀉','胃食道逆流','沒食慾','疲倦','頭痛','失眠'];
 
-  var GS_CODE="/**\n * 猛健樂記錄 — Google 試算表後端 (Google Apps Script)\n *\n * 記錄會寫進試算表裡名為「猛健樂記錄」的分頁，記帳寫進「記帳」分頁，\n * 原本的工作表不會被動到。\n * 試算表本身「不需要」開放共用，腳本是用你自己的身分執行的。\n *\n * 設定步驟：\n * 1. 開啟你要存記錄的試算表\n * 2. 上方選單「擴充功能」→「Apps Script」\n * 3. 把編輯器裡原本的內容全部刪掉，貼上這整份程式碼，按存檔\n * 4. 右上角「部署」→「新增部署作業」→ 類型選「網頁應用程式」\n *    執行身分：我　　　誰可以存取：任何人\n * 5. 複製產生的「網頁應用程式網址」(結尾是 /exec)\n * 6. 第一次會跳出授權畫面（「未命名的專案 (Unverified)」）：\n *    按 REVIEW PERMISSIONS → 選你的帳號 → 左下「進階」→「前往⋯（不安全）」→「允許」\n *    這是你自己寫的腳本，Google 對所有未發佈的個人腳本都會這樣標示。\n * 7. 回到記錄網頁，貼進「雲端試算表」欄位，按「測試連線」\n */\n\n/**\n * 記錄要寫到哪份試算表。\n * 留空＝寫進「開啟這份腳本的那份試算表」，也就是你從試算表選單\n * 「擴充功能 → Apps Script」打開的那一份，通常不用改。\n * 只有在用獨立的 Apps Script 專案時，才需要填試算表網址中間那段 ID。\n */\nvar SPREADSHEET_ID = '';\nvar SHEET_NAME = '猛健樂記錄';\nvar EXPENSE_SHEET = '記帳';\nvar HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',\n               '原始體重', '目標體重', '今日體重',\n               '早餐', '午餐', '晚餐', '點心',\n               '食物熱量kcal', '身體消耗kcal', '熱量赤字kcal',\n               '運動', '運動分鐘', '消耗kcal', '運動內容',\n               '備註', '副作用', '更新時間'];\nvar EXPENSE_HEADERS = ['id', '日期', '分類', '項目', '金額', '備註', '更新時間'];\n\nfunction doPost(e) {\n  try {\n    var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');\n    if (body.action === 'push') {\n      if (body.records) writeAll(body.records);\n      if (body.expenses) writeExpenses(body.expenses);\n      return out(info({\n        action: 'push',\n        count: (body.records || []).length,\n        expenseCount: (body.expenses || []).length\n      }));\n    }\n    return out(info({ action: body.action || 'pull', records: readAll(), expenses: readExpenses() }));\n  } catch (err) {\n    return out({ ok: false, error: String(err) });\n  }\n}\n\n/**\n * GET 也可以用，並支援 JSONP (?callback=xxx)。\n * 手機瀏覽器擋掉跨網域回應時，網頁會改用這條路讀資料。\n */\nfunction doGet(e) {\n  var payload;\n  try {\n    payload = info({ action: 'pull', records: readAll(), expenses: readExpenses() });\n  } catch (err) {\n    payload = { ok: false, error: String(err) };\n  }\n  var cb = e && e.parameter && e.parameter.callback;\n  if (cb && /^[A-Za-z0-9_$]+$/.test(cb)) {\n    return ContentService.createTextOutput(cb + '(' + JSON.stringify(payload) + ');')\n      .setMimeType(ContentService.MimeType.JAVASCRIPT);\n  }\n  return out(payload);\n}\n\n/** 回應裡附上試算表名稱與網址，網頁就不需要把試算表 ID 寫死 */\nfunction info(obj) {\n  obj.ok = true;\n  try {\n    var ss = book();\n    obj.title = ss.getName();\n    obj.url = ss.getUrl();\n  } catch (e) {}\n  return obj;\n}\n\nfunction out(obj) {\n  return ContentService.createTextOutput(JSON.stringify(obj))\n    .setMimeType(ContentService.MimeType.JSON);\n}\n\nfunction book() {\n  if (SPREADSHEET_ID) {\n    try { return SpreadsheetApp.openById(SPREADSHEET_ID); } catch (e) {}\n  }\n  return SpreadsheetApp.getActiveSpreadsheet();\n}\n\nfunction sheetNamed(name) {\n  var ss = book();\n  var sh = ss.getSheetByName(name);\n  if (!sh) {\n    sh = ss.insertSheet(name);\n  }\n  return sh;\n}\n\nfunction sheet() { return sheetNamed(SHEET_NAME); }\n\n/** 以網頁的資料為準，整份覆寫試算表 */\nfunction writeAll(records) {\n  var sh = sheet();\n  sh.clear();\n  var rows = [HEADERS];\n  records.forEach(function (r) {\n    rows.push([\n      r.id || '',\n      r.date || '',\n      r.day || '',\n      r.shot ? '是' : '',\n      r.dose || '',\n      r.shotNo || '',\n      numOrBlank(r.start),\n      numOrBlank(r.goal),\n      numOrBlank(r.weight),\n      r.b || '',\n      r.l || '',\n      r.d || '',\n      r.s || '',\n      numOrBlank(r.kcalIn),\n      numOrBlank(r.kcalOut),\n      (r.kcalIn === null || r.kcalIn === undefined ||\n       r.kcalOut === null || r.kcalOut === undefined) ? '' : (r.kcalOut - r.kcalIn),\n      (r.exTypes || []).join('、'),\n      numOrBlank(r.exMins),\n      numOrBlank(r.exKcal),\n      r.exNote || '',\n      r.note || '',\n      (r.se || []).join('、'),\n      r.updatedAt || ''\n    ]);\n  });\n  sh.getRange(1, 1, rows.length, HEADERS.length).setValues(rows);\n  sh.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold').setBackground('#f1f3f4');\n  sh.setFrozenRows(1);\n  sh.getRange(2, 2, Math.max(rows.length - 1, 1), 1).setNumberFormat('@');\n  var wide = { '早餐': 1, '午餐': 1, '晚餐': 1, '點心': 1, '運動內容': 1, '備註': 1, '副作用': 1 };\n  for (var c = 1; c <= HEADERS.length; c++) {\n    sh.setColumnWidth(c, wide[HEADERS[c - 1]] ? 220 : 100);\n  }\n}\n\n/** 讀回試算表內容（你也可以直接在試算表上編輯，再從網頁「從雲端下載」） */\n/** 依標題列對應欄位，這樣加欄位或欄位順序不同的舊試算表都讀得回來 */\nfunction columnMap(headerRow) {\n  var map = {};\n  for (var c = 0; c < headerRow.length; c++) {\n    map[String(headerRow[c]).trim()] = c;\n  }\n  return map;\n}\n\nfunction readAll() {\n  var sh = sheet();\n  var values = sh.getDataRange().getValues();\n  if (values.length < 2) return [];\n  var m = columnMap(values[0]);\n  var get = function (row, name) {\n    return m[name] === undefined ? '' : row[m[name]];\n  };\n  var list = [];\n  for (var i = 1; i < values.length; i++) {\n    var v = values[i];\n    if (!get(v, '日期')) continue;\n    list.push({\n      id: String(get(v, 'id') || ('sheet-' + i)),\n      date: asDate(get(v, '日期')),\n      day: Number(get(v, 'Day')) || 1,\n      shot: String(get(v, '施打')).trim() !== '',\n      dose: String(get(v, '劑量(mg)') || ''),\n      shotNo: Number(get(v, '第幾劑')) || null,\n      start: asNum(get(v, '原始體重')),\n      goal: asNum(get(v, '目標體重')),\n      weight: asNum(get(v, '今日體重')),\n      b: String(get(v, '早餐') || ''),\n      l: String(get(v, '午餐') || ''),\n      d: String(get(v, '晚餐') || ''),\n      s: String(get(v, '點心') || ''),\n      kcalIn: asNum(get(v, '食物熱量kcal') !== '' ? get(v, '食物熱量kcal') : get(v, '熱量粗估')),\n      kcalOut: asNum(get(v, '身體消耗kcal')),\n      exTypes: splitList(get(v, '運動')),\n      exMins: asNum(get(v, '運動分鐘')),\n      exKcal: asNum(get(v, '消耗kcal')),\n      exNote: String(get(v, '運動內容') || ''),\n      note: String(get(v, '備註') || ''),\n      se: splitList(get(v, '副作用')),\n      updatedAt: String(get(v, '更新時間') || '')\n    });\n  }\n  return list;\n}\n\nfunction splitList(v) {\n  return String(v || '').split(/[、,，]+/).filter(function (x) { return x.trim() !== ''; });\n}\n\n/** 記帳：以網頁的資料為準，整份覆寫「記帳」分頁 */\nfunction writeExpenses(list) {\n  var sh = sheetNamed(EXPENSE_SHEET);\n  sh.clear();\n  var rows = [EXPENSE_HEADERS];\n  list.forEach(function (e) {\n    rows.push([\n      e.id || '',\n      e.date || '',\n      e.cat || '',\n      e.item || '',\n      numOrBlank(e.amount),\n      e.note || '',\n      e.updatedAt || ''\n    ]);\n  });\n  sh.getRange(1, 1, rows.length, EXPENSE_HEADERS.length).setValues(rows);\n  sh.getRange(1, 1, 1, EXPENSE_HEADERS.length).setFontWeight('bold').setBackground('#f1f3f4');\n  sh.setFrozenRows(1);\n  if (rows.length > 1) {\n    sh.getRange(2, 5, rows.length - 1, 1).setNumberFormat('$#,##0');\n  }\n  sh.setColumnWidth(4, 260);\n  sh.setColumnWidth(6, 180);\n}\n\nfunction readExpenses() {\n  var sh = sheetNamed(EXPENSE_SHEET);\n  var values = sh.getDataRange().getValues();\n  if (values.length < 2) return [];\n  var m = columnMap(values[0]);\n  var get = function (row, name) {\n    return m[name] === undefined ? '' : row[m[name]];\n  };\n  var list = [];\n  for (var i = 1; i < values.length; i++) {\n    var v = values[i];\n    if (!get(v, '日期')) continue;\n    list.push({\n      id: String(get(v, 'id') || ('sheet-exp-' + i)),\n      date: asDate(get(v, '日期')),\n      cat: String(get(v, '分類') || '其他'),\n      item: String(get(v, '項目') || ''),\n      amount: asNum(get(v, '金額')) || 0,\n      note: String(get(v, '備註') || ''),\n      updatedAt: String(get(v, '更新時間') || '')\n    });\n  }\n  return list;\n}\n\nfunction asDate(v) {\n  if (v instanceof Date) {\n    return Utilities.formatDate(v, Session.getScriptTimeZone(), 'yyyy-MM-dd');\n  }\n  return String(v).trim();\n}\n\nfunction asNum(v) {\n  var n = parseFloat(v);\n  return isNaN(n) ? null : n;\n}\n\nfunction numOrBlank(v) {\n  return (v === null || v === undefined || v === '') ? '' : v;\n}\n";
+  var GS_CODE="/**\n * 猛健樂記錄 — Google 試算表後端 (Google Apps Script)\n *\n * 記錄會寫進試算表裡名為「猛健樂記錄」的分頁，記帳寫進「記帳」分頁，\n * 原本的工作表不會被動到。\n * 試算表本身「不需要」開放共用，腳本是用你自己的身分執行的。\n *\n * 設定步驟：\n * 1. 開啟你要存記錄的試算表\n * 2. 上方選單「擴充功能」→「Apps Script」\n * 3. 把編輯器裡原本的內容全部刪掉，貼上這整份程式碼，按存檔\n * 4. 右上角「部署」→「新增部署作業」→ 類型選「網頁應用程式」\n *    執行身分：我　　　誰可以存取：任何人\n * 5. 複製產生的「網頁應用程式網址」(結尾是 /exec)\n * 6. 第一次會跳出授權畫面（「未命名的專案 (Unverified)」）：\n *    按 REVIEW PERMISSIONS → 選你的帳號 → 左下「進階」→「前往⋯（不安全）」→「允許」\n *    這是你自己寫的腳本，Google 對所有未發佈的個人腳本都會這樣標示。\n * 7. 回到記錄網頁，貼進「雲端試算表」欄位，按「測試連線」\n */\n\n/**\n * 記錄要寫到哪份試算表。\n * 留空＝寫進「開啟這份腳本的那份試算表」，也就是你從試算表選單\n * 「擴充功能 → Apps Script」打開的那一份，通常不用改。\n * 只有在用獨立的 Apps Script 專案時，才需要填試算表網址中間那段 ID。\n */\nvar SPREADSHEET_ID = '';\nvar SHEET_NAME = '猛健樂記錄';\nvar EXPENSE_SHEET = '記帳';\nvar HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',\n               '原始體重', '目標體重', '今日體重',\n               '早餐', '午餐', '晚餐', '點心',\n               '食物熱量kcal', '身體消耗kcal', '熱量赤字kcal',\n               '運動', '運動分鐘', '消耗kcal', '運動內容',\n               '備註', '副作用', '更新時間'];\nvar EXPENSE_HEADERS = ['id', '日期', '分類', '項目', '金額', '備註', '更新時間'];\n\nfunction doPost(e) {\n  try {\n    var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');\n    if (body.action === 'push') {\n      if (body.records) writeAll(body.records);\n      if (body.expenses) writeExpenses(body.expenses);\n      return out(info({\n        action: 'push',\n        count: (body.records || []).length,\n        expenseCount: (body.expenses || []).length\n      }));\n    }\n    return out(info({ action: body.action || 'pull', records: readAll(), expenses: readExpenses() }));\n  } catch (err) {\n    return out({ ok: false, error: String(err) });\n  }\n}\n\n/**\n * GET 也可以用，並支援 JSONP (?callback=xxx)。\n * 手機瀏覽器擋掉跨網域回應時，網頁會改用這條路讀資料。\n */\nfunction doGet(e) {\n  var payload;\n  try {\n    payload = info({ action: 'pull', records: readAll(), expenses: readExpenses() });\n  } catch (err) {\n    payload = { ok: false, error: String(err) };\n  }\n  var cb = e && e.parameter && e.parameter.callback;\n  if (cb && /^[A-Za-z0-9_$]+$/.test(cb)) {\n    return ContentService.createTextOutput(cb + '(' + JSON.stringify(payload) + ');')\n      .setMimeType(ContentService.MimeType.JAVASCRIPT);\n  }\n  return out(payload);\n}\n\n/** 回應裡附上試算表名稱與網址，網頁就不需要把試算表 ID 寫死 */\nfunction info(obj) {\n  obj.ok = true;\n  try {\n    var ss = book();\n    obj.title = ss.getName();\n    obj.url = ss.getUrl();\n  } catch (e) {}\n  return obj;\n}\n\nfunction out(obj) {\n  return ContentService.createTextOutput(JSON.stringify(obj))\n    .setMimeType(ContentService.MimeType.JSON);\n}\n\nfunction book() {\n  if (SPREADSHEET_ID) {\n    try { return SpreadsheetApp.openById(SPREADSHEET_ID); } catch (e) {}\n  }\n  return SpreadsheetApp.getActiveSpreadsheet();\n}\n\nfunction sheetNamed(name) {\n  var ss = book();\n  var sh = ss.getSheetByName(name);\n  if (!sh) {\n    sh = ss.insertSheet(name);\n  }\n  return sh;\n}\n\nfunction sheet() { return sheetNamed(SHEET_NAME); }\n\n/** 以網頁的資料為準，整份覆寫試算表 */\nfunction writeAll(records) {\n  var sh = sheet();\n  sh.clear();\n  var rows = [HEADERS];\n  records.forEach(function (r) {\n    rows.push([\n      r.id || '',\n      r.date || '',\n      r.day || '',\n      r.shot ? '是' : '',\n      r.dose || '',\n      r.shotNo || '',\n      numOrBlank(r.start),\n      numOrBlank(r.goal),\n      numOrBlank(r.weight),\n      r.b || '',\n      r.l || '',\n      r.d || '',\n      r.s || '',\n      numOrBlank(r.kcalIn),\n      numOrBlank(r.kcalOut),\n      (r.kcalIn === null || r.kcalIn === undefined ||\n       r.kcalOut === null || r.kcalOut === undefined)\n        ? '' : (r.kcalOut + (r.exKcal || 0) - r.kcalIn),\n      (r.exTypes || []).join('、'),\n      numOrBlank(r.exMins),\n      numOrBlank(r.exKcal),\n      r.exNote || '',\n      r.note || '',\n      (r.se || []).join('、'),\n      r.updatedAt || ''\n    ]);\n  });\n  sh.getRange(1, 1, rows.length, HEADERS.length).setValues(rows);\n  sh.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold').setBackground('#f1f3f4');\n  sh.setFrozenRows(1);\n  sh.getRange(2, 2, Math.max(rows.length - 1, 1), 1).setNumberFormat('@');\n  var wide = { '早餐': 1, '午餐': 1, '晚餐': 1, '點心': 1, '運動內容': 1, '備註': 1, '副作用': 1 };\n  for (var c = 1; c <= HEADERS.length; c++) {\n    sh.setColumnWidth(c, wide[HEADERS[c - 1]] ? 220 : 100);\n  }\n}\n\n/** 讀回試算表內容（你也可以直接在試算表上編輯，再從網頁「從雲端下載」） */\n/** 依標題列對應欄位，這樣加欄位或欄位順序不同的舊試算表都讀得回來 */\nfunction columnMap(headerRow) {\n  var map = {};\n  for (var c = 0; c < headerRow.length; c++) {\n    map[String(headerRow[c]).trim()] = c;\n  }\n  return map;\n}\n\nfunction readAll() {\n  var sh = sheet();\n  var values = sh.getDataRange().getValues();\n  if (values.length < 2) return [];\n  var m = columnMap(values[0]);\n  var get = function (row, name) {\n    return m[name] === undefined ? '' : row[m[name]];\n  };\n  var list = [];\n  for (var i = 1; i < values.length; i++) {\n    var v = values[i];\n    if (!get(v, '日期')) continue;\n    list.push({\n      id: String(get(v, 'id') || ('sheet-' + i)),\n      date: asDate(get(v, '日期')),\n      day: Number(get(v, 'Day')) || 1,\n      shot: String(get(v, '施打')).trim() !== '',\n      dose: String(get(v, '劑量(mg)') || ''),\n      shotNo: Number(get(v, '第幾劑')) || null,\n      start: asNum(get(v, '原始體重')),\n      goal: asNum(get(v, '目標體重')),\n      weight: asNum(get(v, '今日體重')),\n      b: String(get(v, '早餐') || ''),\n      l: String(get(v, '午餐') || ''),\n      d: String(get(v, '晚餐') || ''),\n      s: String(get(v, '點心') || ''),\n      kcalIn: asNum(get(v, '食物熱量kcal') !== '' ? get(v, '食物熱量kcal') : get(v, '熱量粗估')),\n      kcalOut: asNum(get(v, '身體消耗kcal')),\n      exTypes: splitList(get(v, '運動')),\n      exMins: asNum(get(v, '運動分鐘')),\n      exKcal: asNum(get(v, '消耗kcal')),\n      exNote: String(get(v, '運動內容') || ''),\n      note: String(get(v, '備註') || ''),\n      se: splitList(get(v, '副作用')),\n      updatedAt: String(get(v, '更新時間') || '')\n    });\n  }\n  return list;\n}\n\nfunction splitList(v) {\n  return String(v || '').split(/[、,，]+/).filter(function (x) { return x.trim() !== ''; });\n}\n\n/** 記帳：以網頁的資料為準，整份覆寫「記帳」分頁 */\nfunction writeExpenses(list) {\n  var sh = sheetNamed(EXPENSE_SHEET);\n  sh.clear();\n  var rows = [EXPENSE_HEADERS];\n  list.forEach(function (e) {\n    rows.push([\n      e.id || '',\n      e.date || '',\n      e.cat || '',\n      e.item || '',\n      numOrBlank(e.amount),\n      e.note || '',\n      e.updatedAt || ''\n    ]);\n  });\n  sh.getRange(1, 1, rows.length, EXPENSE_HEADERS.length).setValues(rows);\n  sh.getRange(1, 1, 1, EXPENSE_HEADERS.length).setFontWeight('bold').setBackground('#f1f3f4');\n  sh.setFrozenRows(1);\n  if (rows.length > 1) {\n    sh.getRange(2, 5, rows.length - 1, 1).setNumberFormat('$#,##0');\n  }\n  sh.setColumnWidth(4, 260);\n  sh.setColumnWidth(6, 180);\n}\n\nfunction readExpenses() {\n  var sh = sheetNamed(EXPENSE_SHEET);\n  var values = sh.getDataRange().getValues();\n  if (values.length < 2) return [];\n  var m = columnMap(values[0]);\n  var get = function (row, name) {\n    return m[name] === undefined ? '' : row[m[name]];\n  };\n  var list = [];\n  for (var i = 1; i < values.length; i++) {\n    var v = values[i];\n    if (!get(v, '日期')) continue;\n    list.push({\n      id: String(get(v, 'id') || ('sheet-exp-' + i)),\n      date: asDate(get(v, '日期')),\n      cat: String(get(v, '分類') || '其他'),\n      item: String(get(v, '項目') || ''),\n      amount: asNum(get(v, '金額')) || 0,\n      note: String(get(v, '備註') || ''),\n      updatedAt: String(get(v, '更新時間') || '')\n    });\n  }\n  return list;\n}\n\nfunction asDate(v) {\n  if (v instanceof Date) {\n    return Utilities.formatDate(v, Session.getScriptTimeZone(), 'yyyy-MM-dd');\n  }\n  return String(v).trim();\n}\n\nfunction asNum(v) {\n  var n = parseFloat(v);\n  return isNaN(n) ? null : n;\n}\n\nfunction numOrBlank(v) {\n  return (v === null || v === undefined || v === '') ? '' : v;\n}\n";
   var records=load(K_REC,[]), settings=load(K_SET,{start:'',goal:''});
   if(settings.sheetUrl===undefined) settings.sheetUrl='';
   if(settings.autoSync===undefined) settings.autoSync=false;
@@ -567,9 +567,10 @@
   }
 
   function kcalText(n){ return Math.round(n).toLocaleString('en-US')+' kcal'; }
-  /** 當日熱量赤字＝身體消耗總熱量 − 食物熱量，兩者都有填才算得出來 */
+  /** 當日熱量赤字＝身體消耗總熱量 ＋ 運動消耗 − 食物熱量 */
   function deficit(r){
-    return (r.kcalIn!=null && r.kcalOut!=null) ? r.kcalOut-r.kcalIn : null;
+    if(r.kcalIn==null || r.kcalOut==null) return null;
+    return r.kcalOut+(r.exKcal||0)-r.kcalIn;
   }
   function deficitText(d){
     return d>=0 ? '赤字 '+kcalText(d) : '超出 '+kcalText(-d);
@@ -579,7 +580,7 @@
   function kcalSummary(r){
     var parts=[];
     if(r.kcalIn!=null) parts.push('食物 '+kcalText(r.kcalIn));
-    if(r.kcalOut!=null) parts.push('消耗 '+kcalText(r.kcalOut));
+    if(r.kcalOut!=null) parts.push('消耗 '+kcalText(r.kcalOut)+(r.exKcal?' ＋運動 '+kcalText(r.exKcal):''));
     var s=parts.join(' ／ '), d=deficit(r);
     if(d!==null) s+=' → '+deficitText(d);
     return s;
@@ -892,18 +893,19 @@
 
   $('cancelBtn').onclick=function(){ resetForm(); render(); };
   function updateDeficitHint(){
-    var i=num($('fKcal').value), o=num($('fKcalOut').value), el=$('deficitHint');
+    var i=num($('fKcal').value), o=num($('fKcalOut').value), ex=num($('fExKcal').value)||0, el=$('deficitHint');
     if(i==null || o==null){
-      el.textContent='兩欄都填就會算出當日熱量赤字（消耗 − 食物）。';
+      el.textContent='兩欄都填就會算出當日熱量赤字（消耗 ＋ 運動 − 食物）。';
       el.style.color='';
       return;
     }
-    var d=o-i;
-    el.textContent='當日熱量'+deficitText(d)+'（'+kcalText(o)+' − '+kcalText(i)+'）';
+    var d=o+ex-i;
+    el.textContent='當日熱量'+deficitText(d)+'（'+kcalText(o)+(ex?' ＋ '+kcalText(ex):'')+' − '+kcalText(i)+'）';
     el.style.color = d>=0 ? 'var(--mint)' : 'var(--warn)';
   }
   $('fKcal').addEventListener('input',updateDeficitHint);
   $('fKcalOut').addEventListener('input',updateDeficitHint);
+  $('fExKcal').addEventListener('input',updateDeficitHint);
   $('fDate').addEventListener('change',function(){ updateDayBadge(); syncShot(); });
   $('fDay').addEventListener('input',updateDayBadge);
   function lastShotRec(){
