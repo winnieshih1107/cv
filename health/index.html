@@ -279,10 +279,23 @@
           <button class="btn btn-ghost btn-sm" type="button" id="testBtn">測試連線</button>
           <button class="btn btn-ghost btn-sm" type="button" id="pushBtn">↑ 上傳到雲端</button>
           <button class="btn btn-ghost btn-sm" type="button" id="pullBtn">↓ 從雲端下載</button>
+          <a class="btn btn-ghost btn-sm" id="probeBtn" target="_blank" rel="noopener" href="#"
+             style="text-decoration:none">🔍 直接開網址檢查</a>
           <a class="btn btn-ghost btn-sm" id="sheetLink" target="_blank" rel="noopener" href="#" hidden
              style="text-decoration:none">開啟試算表 ↗</a>
         </div>
         <div class="hint" id="syncStatus" style="margin-top:.8rem">尚未設定。資料會寫進試算表裡的「猛健樂記錄」分頁；上傳＝本機覆蓋試算表，下載＝試算表覆蓋本機。</div>
+
+        <details class="guide" id="troubleGuide">
+          <summary>連不上？照這三步檢查</summary>
+          <ol>
+            <li>按上面的「<b>🔍 直接開網址檢查</b>」，會用瀏覽器直接打開你的 /exec 網址</li>
+            <li>看到 <b>test({"action":"pull","records":[…],"ok":true…});</b> ＝ 部署正確，回來再按一次「測試連線」</li>
+            <li>看到 <b>Google 登入頁</b>或<b>權限錯誤</b> ＝ 部署權限不對：Apps Script →「部署」→「<b>管理部署作業</b>」→ 鉛筆 →「誰可以存取」改成「<b>任何人</b>」→ 部署</li>
+            <li>看到 <b>{"ok":true…}</b> 但<b>前面沒有 test(</b> ＝ 部署的還是舊程式碼：重貼下面的程式碼 → 存檔 →「管理部署作業」→ 鉛筆 → 版本選「<b>新版本</b>」→ 部署（網址不會變）</li>
+            <li>看到 <b>找不到網頁／已封存</b> ＝ 這個部署已失效，請重新「新增部署作業」並把新的 /exec 網址貼回來</li>
+          </ol>
+        </details>
 
         <details class="guide">
           <summary>第一次設定教學（約 3 分鐘）</summary>
@@ -758,7 +771,12 @@
     var bad=urlProblem(sheetUrl());
     if(bad) return Promise.reject(new Error(bad));
     return api({action:'pull'}).catch(function(err){
-      return jsonp().catch(function(){ throw err; });
+      return jsonp().catch(function(err2){
+        /* 兩條路都不通＝網址或部署權限的問題，講清楚下一步 */
+        throw new Error('讀不到雲端回應（'+err.message+'）。請按「🔍 直接開網址檢查」：'
+          + '看到 test({⋯}) 才算部署正確；出現登入頁就是「誰可以存取」不是「任何人」；'
+          + '沒有 test( 開頭就是部署的還是舊程式碼，要重新部署新版本。');
+      });
     });
   }
 
@@ -828,9 +846,17 @@
 
   function autoPush(){ if(settings.autoSync && sheetUrl()) pushCloud(true); }
 
+  function syncProbe(){
+    var u=sheetUrl();
+    $('probeBtn').href = u ? u+(u.indexOf('?')>=0?'&':'?')+'action=pull&callback=test' : '#';
+  }
   $('fSheetUrl').addEventListener('input',function(){
-    settings.sheetUrl=this.value.trim(); save();
+    settings.sheetUrl=this.value.trim(); save(); syncProbe();
     setDot('', settings.sheetUrl?'尚未測試':'未連線');
+  });
+  $('probeBtn').addEventListener('click',function(e){
+    var bad=urlProblem(sheetUrl());
+    if(bad){ e.preventDefault(); setStatus(bad,'err'); toast('網址有問題'); }
   });
   $('fAutoSync').addEventListener('change',function(){
     settings.autoSync=this.checked; save();
@@ -858,6 +884,7 @@
   $('fSheetUrl').value=settings.sheetUrl||'';
   $('fAutoSync').checked=!!settings.autoSync;
   noteSheet(null);
+  syncProbe();
   if(settings.sheetUrl){
     setDot('', settings.lastSync?'已設定':'尚未測試');
     if(settings.lastSync) setStatus('上次同步：'+settings.lastSync);
