@@ -25,6 +25,8 @@
  * 只有在用獨立的 Apps Script 專案時，才需要填試算表網址中間那段 ID。
  */
 var SPREADSHEET_ID = '';
+/** 程式碼版本；網頁會比對這個字串，不一樣就提醒你重新部署 */
+var CODE_VERSION = 'v6-熱量赤字';
 var SHEET_NAME = '猛健樂記錄';
 var EXPENSE_SHEET = '記帳';
 var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
@@ -75,6 +77,7 @@ function doGet(e) {
 /** 回應裡附上試算表名稱與網址，網頁就不需要把試算表 ID 寫死 */
 function info(obj) {
   obj.ok = true;
+  obj.version = CODE_VERSION;
   try {
     var ss = book();
     obj.title = ss.getName();
