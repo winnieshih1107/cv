@@ -29,7 +29,9 @@ var SHEET_NAME = '猛健樂記錄';
 var EXPENSE_SHEET = '記帳';
 var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
                '原始體重', '目標體重', '今日體重',
-               '早餐', '午餐', '晚餐', '點心', '備註', '副作用', '更新時間'];
+               '早餐', '午餐', '晚餐', '點心',
+               '運動', '運動分鐘', '消耗kcal', '運動內容',
+               '備註', '副作用', '更新時間'];
 var EXPENSE_HEADERS = ['id', '日期', '分類', '項目', '金額', '備註', '更新時間'];
 
 function doPost(e) {
@@ -123,6 +125,10 @@ function writeAll(records) {
       r.l || '',
       r.d || '',
       r.s || '',
+      (r.exTypes || []).join('、'),
+      numOrBlank(r.exMins),
+      numOrBlank(r.exKcal),
+      r.exNote || '',
       r.note || '',
       (r.se || []).join('、'),
       r.updatedAt || ''
@@ -132,39 +138,62 @@ function writeAll(records) {
   sh.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold').setBackground('#f1f3f4');
   sh.setFrozenRows(1);
   sh.getRange(2, 2, Math.max(rows.length - 1, 1), 1).setNumberFormat('@');
+  var wide = { '早餐': 1, '午餐': 1, '晚餐': 1, '點心': 1, '運動內容': 1, '備註': 1, '副作用': 1 };
   for (var c = 1; c <= HEADERS.length; c++) {
-    sh.setColumnWidth(c, c >= 10 && c <= 14 ? 220 : 100);
+    sh.setColumnWidth(c, wide[HEADERS[c - 1]] ? 220 : 100);
   }
 }
 
 /** 讀回試算表內容（你也可以直接在試算表上編輯，再從網頁「從雲端下載」） */
+/** 依標題列對應欄位，這樣加欄位或欄位順序不同的舊試算表都讀得回來 */
+function columnMap(headerRow) {
+  var map = {};
+  for (var c = 0; c < headerRow.length; c++) {
+    map[String(headerRow[c]).trim()] = c;
+  }
+  return map;
+}
+
 function readAll() {
   var sh = sheet();
   var values = sh.getDataRange().getValues();
+  if (values.length < 2) return [];
+  var m = columnMap(values[0]);
+  var get = function (row, name) {
+    return m[name] === undefined ? '' : row[m[name]];
+  };
   var list = [];
   for (var i = 1; i < values.length; i++) {
     var v = values[i];
-    if (!v[1]) continue;
+    if (!get(v, '日期')) continue;
     list.push({
-      id: String(v[0] || ('sheet-' + i)),
-      date: asDate(v[1]),
-      day: Number(v[2]) || 1,
-      shot: String(v[3]).trim() !== '',
-      dose: String(v[4] || ''),
-      shotNo: Number(v[5]) || null,
-      start: asNum(v[6]),
-      goal: asNum(v[7]),
-      weight: asNum(v[8]),
-      b: String(v[9] || ''),
-      l: String(v[10] || ''),
-      d: String(v[11] || ''),
-      s: String(v[12] || ''),
-      note: String(v[13] || ''),
-      se: String(v[14] || '').split(/[、,，]+/).filter(function (x) { return x.trim() !== ''; }),
-      updatedAt: String(v[15] || '')
+      id: String(get(v, 'id') || ('sheet-' + i)),
+      date: asDate(get(v, '日期')),
+      day: Number(get(v, 'Day')) || 1,
+      shot: String(get(v, '施打')).trim() !== '',
+      dose: String(get(v, '劑量(mg)') || ''),
+      shotNo: Number(get(v, '第幾劑')) || null,
+      start: asNum(get(v, '原始體重')),
+      goal: asNum(get(v, '目標體重')),
+      weight: asNum(get(v, '今日體重')),
+      b: String(get(v, '早餐') || ''),
+      l: String(get(v, '午餐') || ''),
+      d: String(get(v, '晚餐') || ''),
+      s: String(get(v, '點心') || ''),
+      exTypes: splitList(get(v, '運動')),
+      exMins: asNum(get(v, '運動分鐘')),
+      exKcal: asNum(get(v, '消耗kcal')),
+      exNote: String(get(v, '運動內容') || ''),
+      note: String(get(v, '備註') || ''),
+      se: splitList(get(v, '副作用')),
+      updatedAt: String(get(v, '更新時間') || '')
     });
   }
   return list;
+}
+
+function splitList(v) {
+  return String(v || '').split(/[、,，]+/).filter(function (x) { return x.trim() !== ''; });
 }
 
 /** 記帳：以網頁的資料為準，整份覆寫「記帳」分頁 */
@@ -196,18 +225,23 @@ function writeExpenses(list) {
 function readExpenses() {
   var sh = sheetNamed(EXPENSE_SHEET);
   var values = sh.getDataRange().getValues();
+  if (values.length < 2) return [];
+  var m = columnMap(values[0]);
+  var get = function (row, name) {
+    return m[name] === undefined ? '' : row[m[name]];
+  };
   var list = [];
   for (var i = 1; i < values.length; i++) {
     var v = values[i];
-    if (!v[1]) continue;
+    if (!get(v, '日期')) continue;
     list.push({
-      id: String(v[0] || ('sheet-exp-' + i)),
-      date: asDate(v[1]),
-      cat: String(v[2] || '其他'),
-      item: String(v[3] || ''),
-      amount: asNum(v[4]) || 0,
-      note: String(v[5] || ''),
-      updatedAt: String(v[6] || '')
+      id: String(get(v, 'id') || ('sheet-exp-' + i)),
+      date: asDate(get(v, '日期')),
+      cat: String(get(v, '分類') || '其他'),
+      item: String(get(v, '項目') || ''),
+      amount: asNum(get(v, '金額')) || 0,
+      note: String(get(v, '備註') || ''),
+      updatedAt: String(get(v, '更新時間') || '')
     });
   }
   return list;
