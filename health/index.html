@@ -79,6 +79,14 @@
   .divider{height:1px;background:var(--border);margin:1.2rem 0}
   .sec-label{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem}
 
+  .shot-toggle{display:flex;align-items:center;gap:.6rem;margin:0 0 .95rem;padding:.7rem .85rem;
+    border:1px solid var(--border-strong);border-radius:10px;background:var(--surface-2);
+    cursor:pointer;user-select:none;font-size:.9rem;transition:border-color .18s,background .18s,color .18s}
+  .shot-toggle input{width:18px;height:18px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+  .shot-toggle span{font-weight:500}
+  .shot-toggle em{margin-left:auto;font-style:normal;font-size:.72rem;color:var(--muted);text-align:right}
+  .shot-toggle.on{border-color:var(--gold);background:rgba(229,195,73,.09)}
+  .shot-toggle.on span{color:var(--gold)}
   .check{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--muted-2);cursor:pointer;user-select:none}
   .check input{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
 
@@ -197,9 +205,11 @@
             </div>
           </div>
 
-          <div class="field">
-            <label class="check"><input type="checkbox" id="fShot" /> 今天有施打💉</label>
-          </div>
+          <label class="shot-toggle" id="shotToggle">
+            <input type="checkbox" id="fShot" />
+            <span>💉 今天有施打</span>
+            <em id="shotHint"></em>
+          </label>
 
           <div class="grid-2" id="shotFields">
             <div class="field">
@@ -347,6 +357,12 @@
   if(settings.sheetUrl===undefined) settings.sheetUrl='';
   if(settings.autoSync===undefined) settings.autoSync=false;
   if(settings.lastSync===undefined) settings.lastSync='';
+  /* 舊版會在沒勾施打時留下自動帶入的劑量，讀進來時一併清乾淨 */
+  (function(){
+    var fixed=false;
+    records.forEach(function(r){ if(!r.shot && (r.dose||r.shotNo)){ r.dose=''; r.shotNo=null; fixed=true; } });
+    if(fixed){ try{ localStorage.setItem(K_REC,JSON.stringify(records)); }catch(e){} }
+  })();
   var selectedSE=[], editingId=null;
 
   function load(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
@@ -596,8 +612,9 @@
       date: date,
       day: parseInt($('fDay').value,10)||autoDay(date),
       shot: $('fShot').checked,
-      dose: $('fDose').value.trim(),
-      shotNo: parseInt($('fShotNo').value,10)||null,
+      /* 沒勾「今天有施打」就不要留下自動帶入的劑量，免得試算表看起來像有打針 */
+      dose: $('fShot').checked ? $('fDose').value.trim() : '',
+      shotNo: $('fShot').checked ? (parseInt($('fShotNo').value,10)||null) : null,
       start: num($('fStart').value),
       goal: num($('fGoal').value),
       weight: num($('fToday').value),
@@ -622,9 +639,24 @@
   });
 
   $('cancelBtn').onclick=function(){ resetForm(); render(); };
-  $('fDate').addEventListener('change',updateDayBadge);
+  $('fDate').addEventListener('change',function(){ updateDayBadge(); syncShot(); });
   $('fDay').addEventListener('input',updateDayBadge);
-  function syncShot(){ $('shotFields').style.display=$('fShot').checked?'grid':'none'; }
+  function lastShotRec(){
+    var s=sorted();
+    for(var i=s.length-1;i>=0;i--){ if(s[i].shot) return s[i]; }
+    return null;
+  }
+  function syncShot(){
+    var on=$('fShot').checked;
+    $('shotFields').style.display=on?'grid':'none';
+    $('shotToggle').classList.toggle('on',on);
+    var last=lastShotRec(), hint='';
+    if(last){
+      var gap=dayDiff(last.date, $('fDate').value||today());
+      hint='上次 '+md(last.date)+'（第'+zh(last.shotNo||1)+'劑）'+(gap>=0?' · 已 '+gap+' 天':'');
+    }else if(!on){ hint='第一次施打記得勾選'; }
+    $('shotHint').textContent=hint;
+  }
   $('fShot').addEventListener('change',syncShot);
 
   $('recList').addEventListener('click',function(e){
