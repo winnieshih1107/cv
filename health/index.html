@@ -68,7 +68,7 @@
 
   form .field{margin-bottom:.95rem}
   label{display:block;font-size:.76rem;color:var(--muted-2);margin-bottom:.35rem;letter-spacing:.02em}
-  input[type=text],input[type=date],input[type=number],textarea,select{
+  input[type=text],input[type=date],input[type=number],input[type=month],textarea,select{
     width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;
     padding:.62rem .75rem;font-size:.92rem;transition:border-color .18s,background .18s}
   input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold);background:#1c1c21}
@@ -139,6 +139,46 @@
   .toast{position:fixed;left:50%;bottom:1.8rem;transform:translate(-50%,140%);background:var(--gold);color:#111;
     padding:.7rem 1.3rem;border-radius:99px;font-size:.85rem;font-weight:600;z-index:99;transition:transform .3s ease;box-shadow:0 8px 30px rgba(0,0,0,.5)}
   .toast.show{transform:translate(-50%,0)}
+  /* ── TABS ── */
+  .tabs{display:flex;gap:.45rem;margin-top:1.5rem;flex-wrap:wrap}
+  .tab{padding:.55rem 1.15rem;border-radius:99px;border:1px solid var(--border-strong);background:transparent;
+    color:var(--muted-2);font-size:.85rem;font-weight:500;cursor:pointer;transition:all .18s}
+  .tab:hover{color:var(--white);border-color:var(--white)}
+  .tab.on{background:var(--gold);border-color:var(--gold);color:#111;font-weight:600}
+  .cols.shared{margin-top:2.4rem;padding-top:1.7rem;border-top:1px solid var(--border)}
+  .month-pick{display:flex;align-items:center;gap:.5rem}
+  .month-pick input{width:auto;padding:.34rem .55rem;font-size:.8rem;color-scheme:dark}
+  input[type=date],input[type=month]{color-scheme:dark}
+
+  /* ── EXPENSES ── */
+  .day-group{margin-bottom:1rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+  .day-head{display:flex;align-items:baseline;justify-content:space-between;gap:.8rem;
+    padding:.7rem 1.1rem;background:var(--surface-2);border-bottom:1px solid var(--border);font-size:.82rem;color:var(--muted-2)}
+  .day-head b{color:var(--white);font-weight:600}
+  .day-head span{font-family:var(--serif);font-size:1.02rem;color:var(--gold)}
+  .exp{display:flex;align-items:center;gap:.7rem;padding:.7rem 1.1rem;border-bottom:1px solid var(--border)}
+  .exp:last-child{border-bottom:none}
+  .exp-cat{font-size:.68rem;padding:.17rem .5rem;border-radius:99px;border:1px solid var(--border-strong);
+    color:var(--muted-2);flex-shrink:0;white-space:nowrap}
+  .exp-main{flex:1;min-width:0}
+  .exp-item{font-size:.88rem;color:rgba(255,255,255,.9);overflow-wrap:anywhere}
+  .exp-note{font-size:.72rem;color:var(--muted);overflow-wrap:anywhere}
+  .exp-amt{font-family:var(--serif);font-size:1.02rem;font-weight:700;white-space:nowrap}
+  .exp-acts{display:flex;gap:.25rem;flex-shrink:0}
+  .icon-btn{background:none;border:1px solid transparent;color:var(--muted);cursor:pointer;
+    font-size:.72rem;padding:.25rem .45rem;border-radius:6px;transition:all .16s}
+  .icon-btn:hover{border-color:var(--border-strong);color:var(--white)}
+  .icon-btn.del:hover{border-color:var(--danger);color:var(--danger)}
+  .chips.cat .chip:hover{border-color:var(--gold)}
+  .chips.cat .chip.on{background:rgba(229,195,73,.14);border-color:var(--gold);color:var(--gold)}
+  .cat-row{margin-bottom:.8rem}
+  .cat-row:last-child{margin-bottom:0}
+  .cat-meta{display:flex;justify-content:space-between;gap:.6rem;font-size:.78rem;margin-bottom:.32rem}
+  .cat-meta b{font-weight:400;color:var(--muted-2)}
+  .cat-meta span{color:var(--white)}
+  .cat-bar{height:6px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);overflow:hidden}
+  .cat-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),#f0d260)}
+
   /* ── CLOUD SYNC ── */
   .dot{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;letter-spacing:.04em;text-transform:none;color:var(--muted)}
   .dot i{width:7px;height:7px;border-radius:50%;background:var(--muted);display:block;flex-shrink:0}
@@ -170,6 +210,17 @@
     </div>
     <a class="back" href="../index.html">← 回到 Portfolio</a>
 
+    <nav class="tabs" id="tabs">
+      <button class="tab on" type="button" data-view="Health">📝 健康記錄</button>
+      <button class="tab" type="button" data-view="Money">💰 記帳</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ══════ 健康記錄 ══════ -->
+  <section id="viewHealth">
     <div class="stats">
       <div class="stat"><div class="stat-num" id="sDays">0</div><div class="stat-label">記錄天數</div></div>
       <div class="stat is-gold"><div class="stat-num" id="sNow">–<small>kg</small></div><div class="stat-label" id="sNowLabel">目前體重</div></div>
@@ -181,11 +232,8 @@
       <div class="progress-meta"><span id="pFrom">原始 –</span><span id="pPct">0%</span><span id="pTo">目標 –</span></div>
       <div class="bar"><i id="pBar" style="width:0%"></i></div>
     </div>
-  </div>
-</header>
 
-<main class="wrap">
-  <div class="cols">
+    <div class="cols">
 
     <!-- ══ LEFT: FORM ══ -->
     <section>
@@ -265,7 +313,99 @@
           </div>
         </form>
       </div>
+    </section>
 
+    <!-- ══ RIGHT: CHART + RECORDS ══ -->
+    <section>
+      <div class="card" id="chartCard" hidden>
+        <div class="card-title"><span class="zh">體重曲線</span><span id="chartRange"></span></div>
+        <div class="chart-wrap"><svg class="chart" id="chart" viewBox="0 0 620 200" preserveAspectRatio="none"></svg></div>
+        <div class="legend">
+          <span><i style="background:var(--gold)"></i>每日體重</span>
+          <span><i style="background:var(--mint)"></i>目標</span>
+          <span><i style="background:rgba(255,255,255,.28)"></i>原始</span>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin:.3rem 0 1rem"><span class="zh">全部記錄</span><span id="recCount"></span></div>
+      <div id="recList"></div>
+    </section>
+
+    </div>
+  </section>
+
+  <!-- ══════ 記帳 ══════ -->
+  <section id="viewMoney" hidden>
+    <div class="stats">
+      <div class="stat is-gold"><div class="stat-num" id="mTotal">$0</div><div class="stat-label" id="mTotalLabel">本月支出</div></div>
+      <div class="stat"><div class="stat-num" id="mToday">$0</div><div class="stat-label">今日支出</div></div>
+      <div class="stat"><div class="stat-num" id="mAvg">$0</div><div class="stat-label">每日平均</div></div>
+      <div class="stat"><div class="stat-num" id="mCount">0</div><div class="stat-label">本月筆數</div></div>
+    </div>
+
+    <div class="cols">
+
+      <section>
+        <div class="card">
+          <div class="card-title"><span class="zh" id="expTitle">新增一筆花費</span><span id="expBadge"></span></div>
+          <form id="expForm" autocomplete="off">
+            <input type="hidden" id="eId" />
+            <div class="grid-2">
+              <div class="field">
+                <label for="eDate">日期</label>
+                <input type="date" id="eDate" required />
+              </div>
+              <div class="field">
+                <label for="eAmount">金額 (NT$)</label>
+                <input type="number" id="eAmount" step="1" min="0" inputmode="decimal" placeholder="0" required />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>分類</label>
+              <div class="chips cat" id="catChips"></div>
+            </div>
+
+            <div class="field">
+              <label for="eItem">項目</label>
+              <input type="text" id="eItem" placeholder="例：午餐 雞胸沙拉、猛健樂 2.5mg" />
+            </div>
+
+            <div class="field">
+              <label for="eNote">備註（選填）</label>
+              <input type="text" id="eNote" placeholder="付款方式、店家⋯" />
+            </div>
+
+            <button class="btn btn-primary" type="submit" id="expSubmit">儲存花費</button>
+            <div class="btn-row" id="expCancelRow" hidden>
+              <button class="btn btn-ghost" type="button" id="expCancel" style="width:100%">取消編輯</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card" id="catCard" hidden>
+          <div class="card-title"><span class="zh">分類佔比</span><span id="catRange"></span></div>
+          <div id="catBars"></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="card-title" style="margin:.3rem 0 1rem;gap:.8rem;flex-wrap:wrap">
+          <span class="zh">記帳明細</span>
+          <span class="month-pick">
+            <input type="month" id="mMonth" />
+            <button class="btn btn-ghost btn-sm" type="button" id="copyMonthBtn">複製本月</button>
+          </span>
+        </div>
+        <div id="expList"></div>
+      </section>
+
+    </div>
+  </section>
+
+  <!-- ══════ 共用：資料與同步 ══════ -->
+  <div class="cols shared">
+    <section>
       <div class="card">
         <div class="card-title"><span class="zh">資料管理</span></div>
         <div class="toolbar">
@@ -277,7 +417,8 @@
         <input type="file" id="fileInput" accept="application/json" hidden />
         <div class="hint" style="margin-top:.8rem">記錄存在這台裝置的瀏覽器裡（localStorage）。想換裝置或備份，用匯出／匯入，或設定下面的雲端同步。</div>
       </div>
-
+    </section>
+    <section>
       <div class="card">
         <div class="card-title"><span class="zh">☁️ 雲端試算表</span><span class="dot" id="syncDot"><i></i>未連線</span></div>
         <div class="field">
@@ -323,25 +464,10 @@
         </details>
       </div>
     </section>
-
-    <!-- ══ RIGHT: CHART + RECORDS ══ -->
-    <section>
-      <div class="card" id="chartCard" hidden>
-        <div class="card-title"><span class="zh">體重曲線</span><span id="chartRange"></span></div>
-        <div class="chart-wrap"><svg class="chart" id="chart" viewBox="0 0 620 200" preserveAspectRatio="none"></svg></div>
-        <div class="legend">
-          <span><i style="background:var(--gold)"></i>每日體重</span>
-          <span><i style="background:var(--mint)"></i>目標</span>
-          <span><i style="background:rgba(255,255,255,.28)"></i>原始</span>
-        </div>
-      </div>
-
-      <div class="card-title" style="margin:.3rem 0 1rem"><span class="zh">全部記錄</span><span id="recCount"></span></div>
-      <div id="recList"></div>
-    </section>
-
   </div>
+
 </main>
+
 
 <footer>猛健樂記錄 · 資料僅存於本機瀏覽器 · 本頁不提供醫療建議，用藥請遵醫囑</footer>
 <div class="toast" id="toast"></div>
@@ -349,10 +475,11 @@
 <script>
 (function(){
   'use strict';
-  var K_REC='mjl-records-v1', K_SET='mjl-settings-v1';
+  var K_REC='mjl-records-v1', K_SET='mjl-settings-v1', K_EXP='mjl-expenses-v1';
+  var CATS=['飲食','藥費','醫療','交通','日用','運動','娛樂','其他'];
   var SE_LIST=['頭暈','心悸','噁心','想吐','胃脹','便祕','腹瀉','胃食道逆流','沒食慾','疲倦','頭痛','失眠'];
 
-  var GS_CODE="/**\n * 猛健樂記錄 — Google 試算表後端 (Google Apps Script)\n *\n * 記錄會寫進試算表裡名為「猛健樂記錄」的分頁，原本的工作表不會被動到。\n * 試算表本身「不需要」開放共用，腳本是用你自己的身分執行的。\n *\n * 設定步驟：\n * 1. 開啟你要存記錄的試算表\n * 2. 上方選單「擴充功能」→「Apps Script」\n * 3. 把編輯器裡原本的內容全部刪掉，貼上這整份程式碼，按存檔\n * 4. 右上角「部署」→「新增部署作業」→ 類型選「網頁應用程式」\n *    執行身分：我　　　誰可以存取：任何人\n * 5. 複製產生的「網頁應用程式網址」(結尾是 /exec)\n * 6. 第一次會跳出授權畫面（「未命名的專案 (Unverified)」）：\n *    按 REVIEW PERMISSIONS → 選你的帳號 → 左下「進階」→「前往⋯（不安全）」→「允許」\n *    這是你自己寫的腳本，Google 對所有未發佈的個人腳本都會這樣標示。\n * 7. 回到記錄網頁，貼進「雲端試算表」欄位，按「測試連線」\n */\n\n/**\n * 記錄要寫到哪份試算表。\n * 留空＝寫進「開啟這份腳本的那份試算表」，也就是你從試算表選單\n * 「擴充功能 → Apps Script」打開的那一份，通常不用改。\n * 只有在用獨立的 Apps Script 專案時，才需要填試算表網址中間那段 ID。\n */\nvar SPREADSHEET_ID = '';\nvar SHEET_NAME = '猛健樂記錄';\nvar HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',\n               '原始體重', '目標體重', '今日體重',\n               '早餐', '午餐', '晚餐', '點心', '備註', '副作用', '更新時間'];\n\nfunction doPost(e) {\n  try {\n    var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');\n    if (body.action === 'push') {\n      writeAll(body.records || []);\n      return out(info({ action: 'push', count: (body.records || []).length }));\n    }\n    return out(info({ action: body.action || 'pull', records: readAll() }));\n  } catch (err) {\n    return out({ ok: false, error: String(err) });\n  }\n}\n\n/**\n * GET 也可以用，並支援 JSONP (?callback=xxx)。\n * 手機瀏覽器擋掉跨網域回應時，網頁會改用這條路讀資料。\n */\nfunction doGet(e) {\n  var payload;\n  try {\n    payload = info({ action: 'pull', records: readAll() });\n  } catch (err) {\n    payload = { ok: false, error: String(err) };\n  }\n  var cb = e && e.parameter && e.parameter.callback;\n  if (cb && /^[A-Za-z0-9_$]+$/.test(cb)) {\n    return ContentService.createTextOutput(cb + '(' + JSON.stringify(payload) + ');')\n      .setMimeType(ContentService.MimeType.JAVASCRIPT);\n  }\n  return out(payload);\n}\n\n/** 回應裡附上試算表名稱與網址，網頁就不需要把試算表 ID 寫死 */\nfunction info(obj) {\n  obj.ok = true;\n  try {\n    var ss = book();\n    obj.title = ss.getName();\n    obj.url = ss.getUrl();\n  } catch (e) {}\n  return obj;\n}\n\nfunction out(obj) {\n  return ContentService.createTextOutput(JSON.stringify(obj))\n    .setMimeType(ContentService.MimeType.JSON);\n}\n\nfunction book() {\n  if (SPREADSHEET_ID) {\n    try { return SpreadsheetApp.openById(SPREADSHEET_ID); } catch (e) {}\n  }\n  return SpreadsheetApp.getActiveSpreadsheet();\n}\n\nfunction sheet() {\n  var ss = book();\n  var sh = ss.getSheetByName(SHEET_NAME);\n  if (!sh) {\n    sh = ss.insertSheet(SHEET_NAME);\n  }\n  return sh;\n}\n\n/** 以網頁的資料為準，整份覆寫試算表 */\nfunction writeAll(records) {\n  var sh = sheet();\n  sh.clear();\n  var rows = [HEADERS];\n  records.forEach(function (r) {\n    rows.push([\n      r.id || '',\n      r.date || '',\n      r.day || '',\n      r.shot ? '是' : '',\n      r.dose || '',\n      r.shotNo || '',\n      numOrBlank(r.start),\n      numOrBlank(r.goal),\n      numOrBlank(r.weight),\n      r.b || '',\n      r.l || '',\n      r.d || '',\n      r.s || '',\n      r.note || '',\n      (r.se || []).join('、'),\n      r.updatedAt || ''\n    ]);\n  });\n  sh.getRange(1, 1, rows.length, HEADERS.length).setValues(rows);\n  sh.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold').setBackground('#f1f3f4');\n  sh.setFrozenRows(1);\n  sh.getRange(2, 2, Math.max(rows.length - 1, 1), 1).setNumberFormat('@');\n  for (var c = 1; c <= HEADERS.length; c++) {\n    sh.setColumnWidth(c, c >= 10 && c <= 14 ? 220 : 100);\n  }\n}\n\n/** 讀回試算表內容（你也可以直接在試算表上編輯，再從網頁「從雲端下載」） */\nfunction readAll() {\n  var sh = sheet();\n  var values = sh.getDataRange().getValues();\n  var list = [];\n  for (var i = 1; i < values.length; i++) {\n    var v = values[i];\n    if (!v[1]) continue;\n    list.push({\n      id: String(v[0] || ('sheet-' + i)),\n      date: asDate(v[1]),\n      day: Number(v[2]) || 1,\n      shot: String(v[3]).trim() !== '',\n      dose: String(v[4] || ''),\n      shotNo: Number(v[5]) || null,\n      start: asNum(v[6]),\n      goal: asNum(v[7]),\n      weight: asNum(v[8]),\n      b: String(v[9] || ''),\n      l: String(v[10] || ''),\n      d: String(v[11] || ''),\n      s: String(v[12] || ''),\n      note: String(v[13] || ''),\n      se: String(v[14] || '').split(/[、,，]+/).filter(function (x) { return x.trim() !== ''; }),\n      updatedAt: String(v[15] || '')\n    });\n  }\n  return list;\n}\n\nfunction asDate(v) {\n  if (v instanceof Date) {\n    return Utilities.formatDate(v, Session.getScriptTimeZone(), 'yyyy-MM-dd');\n  }\n  return String(v).trim();\n}\n\nfunction asNum(v) {\n  var n = parseFloat(v);\n  return isNaN(n) ? null : n;\n}\n\nfunction numOrBlank(v) {\n  return (v === null || v === undefined || v === '') ? '' : v;\n}\n";
+  var GS_CODE="/**\n * 猛健樂記錄 — Google 試算表後端 (Google Apps Script)\n *\n * 記錄會寫進試算表裡名為「猛健樂記錄」的分頁，記帳寫進「記帳」分頁，\n * 原本的工作表不會被動到。\n * 試算表本身「不需要」開放共用，腳本是用你自己的身分執行的。\n *\n * 設定步驟：\n * 1. 開啟你要存記錄的試算表\n * 2. 上方選單「擴充功能」→「Apps Script」\n * 3. 把編輯器裡原本的內容全部刪掉，貼上這整份程式碼，按存檔\n * 4. 右上角「部署」→「新增部署作業」→ 類型選「網頁應用程式」\n *    執行身分：我　　　誰可以存取：任何人\n * 5. 複製產生的「網頁應用程式網址」(結尾是 /exec)\n * 6. 第一次會跳出授權畫面（「未命名的專案 (Unverified)」）：\n *    按 REVIEW PERMISSIONS → 選你的帳號 → 左下「進階」→「前往⋯（不安全）」→「允許」\n *    這是你自己寫的腳本，Google 對所有未發佈的個人腳本都會這樣標示。\n * 7. 回到記錄網頁，貼進「雲端試算表」欄位，按「測試連線」\n */\n\n/**\n * 記錄要寫到哪份試算表。\n * 留空＝寫進「開啟這份腳本的那份試算表」，也就是你從試算表選單\n * 「擴充功能 → Apps Script」打開的那一份，通常不用改。\n * 只有在用獨立的 Apps Script 專案時，才需要填試算表網址中間那段 ID。\n */\nvar SPREADSHEET_ID = '';\nvar SHEET_NAME = '猛健樂記錄';\nvar EXPENSE_SHEET = '記帳';\nvar HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',\n               '原始體重', '目標體重', '今日體重',\n               '早餐', '午餐', '晚餐', '點心', '備註', '副作用', '更新時間'];\nvar EXPENSE_HEADERS = ['id', '日期', '分類', '項目', '金額', '備註', '更新時間'];\n\nfunction doPost(e) {\n  try {\n    var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');\n    if (body.action === 'push') {\n      if (body.records) writeAll(body.records);\n      if (body.expenses) writeExpenses(body.expenses);\n      return out(info({\n        action: 'push',\n        count: (body.records || []).length,\n        expenseCount: (body.expenses || []).length\n      }));\n    }\n    return out(info({ action: body.action || 'pull', records: readAll(), expenses: readExpenses() }));\n  } catch (err) {\n    return out({ ok: false, error: String(err) });\n  }\n}\n\n/**\n * GET 也可以用，並支援 JSONP (?callback=xxx)。\n * 手機瀏覽器擋掉跨網域回應時，網頁會改用這條路讀資料。\n */\nfunction doGet(e) {\n  var payload;\n  try {\n    payload = info({ action: 'pull', records: readAll(), expenses: readExpenses() });\n  } catch (err) {\n    payload = { ok: false, error: String(err) };\n  }\n  var cb = e && e.parameter && e.parameter.callback;\n  if (cb && /^[A-Za-z0-9_$]+$/.test(cb)) {\n    return ContentService.createTextOutput(cb + '(' + JSON.stringify(payload) + ');')\n      .setMimeType(ContentService.MimeType.JAVASCRIPT);\n  }\n  return out(payload);\n}\n\n/** 回應裡附上試算表名稱與網址，網頁就不需要把試算表 ID 寫死 */\nfunction info(obj) {\n  obj.ok = true;\n  try {\n    var ss = book();\n    obj.title = ss.getName();\n    obj.url = ss.getUrl();\n  } catch (e) {}\n  return obj;\n}\n\nfunction out(obj) {\n  return ContentService.createTextOutput(JSON.stringify(obj))\n    .setMimeType(ContentService.MimeType.JSON);\n}\n\nfunction book() {\n  if (SPREADSHEET_ID) {\n    try { return SpreadsheetApp.openById(SPREADSHEET_ID); } catch (e) {}\n  }\n  return SpreadsheetApp.getActiveSpreadsheet();\n}\n\nfunction sheetNamed(name) {\n  var ss = book();\n  var sh = ss.getSheetByName(name);\n  if (!sh) {\n    sh = ss.insertSheet(name);\n  }\n  return sh;\n}\n\nfunction sheet() { return sheetNamed(SHEET_NAME); }\n\n/** 以網頁的資料為準，整份覆寫試算表 */\nfunction writeAll(records) {\n  var sh = sheet();\n  sh.clear();\n  var rows = [HEADERS];\n  records.forEach(function (r) {\n    rows.push([\n      r.id || '',\n      r.date || '',\n      r.day || '',\n      r.shot ? '是' : '',\n      r.dose || '',\n      r.shotNo || '',\n      numOrBlank(r.start),\n      numOrBlank(r.goal),\n      numOrBlank(r.weight),\n      r.b || '',\n      r.l || '',\n      r.d || '',\n      r.s || '',\n      r.note || '',\n      (r.se || []).join('、'),\n      r.updatedAt || ''\n    ]);\n  });\n  sh.getRange(1, 1, rows.length, HEADERS.length).setValues(rows);\n  sh.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold').setBackground('#f1f3f4');\n  sh.setFrozenRows(1);\n  sh.getRange(2, 2, Math.max(rows.length - 1, 1), 1).setNumberFormat('@');\n  for (var c = 1; c <= HEADERS.length; c++) {\n    sh.setColumnWidth(c, c >= 10 && c <= 14 ? 220 : 100);\n  }\n}\n\n/** 讀回試算表內容（你也可以直接在試算表上編輯，再從網頁「從雲端下載」） */\nfunction readAll() {\n  var sh = sheet();\n  var values = sh.getDataRange().getValues();\n  var list = [];\n  for (var i = 1; i < values.length; i++) {\n    var v = values[i];\n    if (!v[1]) continue;\n    list.push({\n      id: String(v[0] || ('sheet-' + i)),\n      date: asDate(v[1]),\n      day: Number(v[2]) || 1,\n      shot: String(v[3]).trim() !== '',\n      dose: String(v[4] || ''),\n      shotNo: Number(v[5]) || null,\n      start: asNum(v[6]),\n      goal: asNum(v[7]),\n      weight: asNum(v[8]),\n      b: String(v[9] || ''),\n      l: String(v[10] || ''),\n      d: String(v[11] || ''),\n      s: String(v[12] || ''),\n      note: String(v[13] || ''),\n      se: String(v[14] || '').split(/[、,，]+/).filter(function (x) { return x.trim() !== ''; }),\n      updatedAt: String(v[15] || '')\n    });\n  }\n  return list;\n}\n\n/** 記帳：以網頁的資料為準，整份覆寫「記帳」分頁 */\nfunction writeExpenses(list) {\n  var sh = sheetNamed(EXPENSE_SHEET);\n  sh.clear();\n  var rows = [EXPENSE_HEADERS];\n  list.forEach(function (e) {\n    rows.push([\n      e.id || '',\n      e.date || '',\n      e.cat || '',\n      e.item || '',\n      numOrBlank(e.amount),\n      e.note || '',\n      e.updatedAt || ''\n    ]);\n  });\n  sh.getRange(1, 1, rows.length, EXPENSE_HEADERS.length).setValues(rows);\n  sh.getRange(1, 1, 1, EXPENSE_HEADERS.length).setFontWeight('bold').setBackground('#f1f3f4');\n  sh.setFrozenRows(1);\n  if (rows.length > 1) {\n    sh.getRange(2, 5, rows.length - 1, 1).setNumberFormat('$#,##0');\n  }\n  sh.setColumnWidth(4, 260);\n  sh.setColumnWidth(6, 180);\n}\n\nfunction readExpenses() {\n  var sh = sheetNamed(EXPENSE_SHEET);\n  var values = sh.getDataRange().getValues();\n  var list = [];\n  for (var i = 1; i < values.length; i++) {\n    var v = values[i];\n    if (!v[1]) continue;\n    list.push({\n      id: String(v[0] || ('sheet-exp-' + i)),\n      date: asDate(v[1]),\n      cat: String(v[2] || '其他'),\n      item: String(v[3] || ''),\n      amount: asNum(v[4]) || 0,\n      note: String(v[5] || ''),\n      updatedAt: String(v[6] || '')\n    });\n  }\n  return list;\n}\n\nfunction asDate(v) {\n  if (v instanceof Date) {\n    return Utilities.formatDate(v, Session.getScriptTimeZone(), 'yyyy-MM-dd');\n  }\n  return String(v).trim();\n}\n\nfunction asNum(v) {\n  var n = parseFloat(v);\n  return isNaN(n) ? null : n;\n}\n\nfunction numOrBlank(v) {\n  return (v === null || v === undefined || v === '') ? '' : v;\n}\n";
   var records=load(K_REC,[]), settings=load(K_SET,{start:'',goal:''});
   if(settings.sheetUrl===undefined) settings.sheetUrl='';
   if(settings.autoSync===undefined) settings.autoSync=false;
@@ -364,9 +491,16 @@
     if(fixed){ try{ localStorage.setItem(K_REC,JSON.stringify(records)); }catch(e){} }
   })();
   var selectedSE=[], editingId=null;
+  var expenses=load(K_EXP,[]), expCat=CATS[0], editingExp=null;
 
   function load(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
-  function save(){ try{ localStorage.setItem(K_REC,JSON.stringify(records)); localStorage.setItem(K_SET,JSON.stringify(settings)); }catch(e){ toast('無法儲存（瀏覽器封鎖了儲存空間）'); } }
+  function save(){
+    try{
+      localStorage.setItem(K_REC,JSON.stringify(records));
+      localStorage.setItem(K_EXP,JSON.stringify(expenses));
+      localStorage.setItem(K_SET,JSON.stringify(settings));
+    }catch(e){ toast('無法儲存（瀏覽器封鎖了儲存空間）'); }
+  }
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function num(v){ var n=parseFloat(v); return isFinite(n)?n:null; }
@@ -701,7 +835,7 @@
     copy(sorted().map(toText).join('\n\n──────────\n\n'),'已複製全部 '+records.length+' 筆記錄');
   };
   $('exportBtn').onclick=function(){
-    var blob=new Blob([JSON.stringify({records:records,settings:settings},null,2)],{type:'application/json'});
+    var blob=new Blob([JSON.stringify({records:records,expenses:expenses,settings:settings},null,2)],{type:'application/json'});
     var a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
     a.download='猛健樂記錄-'+today()+'.json';
@@ -720,18 +854,190 @@
         var ids={}; records.forEach(function(r){ ids[r.id]=1; });
         var added=0;
         incoming.forEach(function(r){ if(r && r.date && !ids[r.id]){ records.push(r); added++; } });
+        var eIds={}; expenses.forEach(function(e){ eIds[e.id]=1; });
+        var eAdded=0;
+        (data.expenses||[]).forEach(function(e){ if(e && e.date && !eIds[e.id]){ expenses.push(e); eAdded++; } });
         if(data.settings) settings=data.settings;
-        save(); resetForm(); render(); toast('已匯入 '+added+' 筆記錄');
+        save(); resetForm(); resetExpForm(); render(); renderMoney();
+        toast('已匯入 '+added+' 筆記錄'+(eAdded?'、'+eAdded+' 筆記帳':''));
       }catch(e){ toast('檔案格式不正確'); }
     };
     rd.readAsText(f); this.value='';
   });
   $('clearBtn').onclick=function(){
-    if(!records.length) return toast('沒有資料可清除');
-    if(confirm('確定要刪除全部 '+records.length+' 筆記錄嗎？此動作無法復原（建議先匯出 JSON）。')){
-      records=[]; save(); resetForm(); render(); toast('已清除全部記錄');
+    if(!records.length && !expenses.length) return toast('沒有資料可清除');
+    if(confirm('確定要刪除全部 '+records.length+' 筆健康記錄與 '+expenses.length
+       +' 筆記帳嗎？此動作無法復原（建議先匯出 JSON）。')){
+      records=[]; expenses=[];
+      save(); resetForm(); resetExpForm(); render(); renderMoney(); toast('已清除全部資料');
     }
   };
+
+  /* ══════════ 記帳 ══════════ */
+  function money(n){ return '$'+Math.round(n).toLocaleString('en-US'); }
+  function ym(iso){ return (iso||'').slice(0,7); }
+  function thisMonth(){ return today().slice(0,7); }
+  function mdLabel(iso){
+    var wd=['日','一','二','三','四','五','六'][new Date(iso+'T00:00:00').getDay()];
+    return md(iso)+'（'+wd+'）';
+  }
+  function pickedMonth(){ return $('mMonth').value || thisMonth(); }
+  function expOf(month){
+    return expenses.filter(function(e){ return ym(e.date)===month; })
+                   .sort(function(a,b){ return a.date<b.date?1:a.date>b.date?-1:0; });
+  }
+  function sum(list){ return list.reduce(function(t,e){ return t+(Number(e.amount)||0); },0); }
+
+  function buildCatChips(){
+    var box=$('catChips'); box.innerHTML='';
+    CATS.forEach(function(name){
+      var b=document.createElement('button');
+      b.type='button'; b.className='chip'; b.textContent=name;
+      b.onclick=function(){ expCat=name; syncCatChips(); };
+      box.appendChild(b);
+    });
+    syncCatChips();
+  }
+  function syncCatChips(){
+    var kids=$('catChips').children;
+    for(var i=0;i<kids.length;i++) kids[i].classList.toggle('on', kids[i].textContent===expCat);
+  }
+
+  function renderMoney(){
+    var month=pickedMonth(), list=expOf(month), total=sum(list);
+    var days={}; list.forEach(function(e){ days[e.date]=1; });
+    var dayCount=Object.keys(days).length;
+    var todayTotal=sum(expenses.filter(function(e){ return e.date===today(); }));
+
+    $('mTotal').textContent=money(total);
+    $('mTotalLabel').textContent=month.replace('-','/')+' 支出';
+    $('mToday').textContent=money(todayTotal);
+    $('mAvg').textContent=dayCount?money(total/dayCount):'$0';
+    $('mCount').textContent=list.length;
+
+    /* 分類佔比 */
+    var byCat={};
+    list.forEach(function(e){ var c=e.cat||'其他'; byCat[c]=(byCat[c]||0)+(Number(e.amount)||0); });
+    var cats=Object.keys(byCat).sort(function(a,b){ return byCat[b]-byCat[a]; });
+    $('catCard').hidden=!cats.length;
+    $('catRange').textContent=cats.length?month.replace('-','/'):'';
+    $('catBars').innerHTML=cats.map(function(c){
+      var pct=total?byCat[c]/total*100:0;
+      return '<div class="cat-row"><div class="cat-meta"><b>'+esc(c)+'</b>'
+        + '<span>'+money(byCat[c])+' · '+Math.round(pct)+'%</span></div>'
+        + '<div class="cat-bar"><i style="width:'+pct.toFixed(1)+'%"></i></div></div>';
+    }).join('');
+
+    /* 明細（依日期分組） */
+    var box=$('expList');
+    if(!list.length){
+      box.innerHTML='<div class="empty"><strong>'+month.replace('-','/')+' 還沒有記錄</strong>'
+        + (expenses.length?'換個月份看看，或新增一筆。':'記下第一筆花費吧。')+'</div>';
+      return;
+    }
+    var groups=[], seen={};
+    list.forEach(function(e){
+      if(!seen[e.date]){ seen[e.date]={date:e.date,items:[]}; groups.push(seen[e.date]); }
+      seen[e.date].items.push(e);
+    });
+    box.innerHTML=groups.map(function(g){
+      return '<div class="day-group"><div class="day-head"><b>'+mdLabel(g.date)+'</b>'
+        + '<span>'+money(sum(g.items))+'</span></div>'
+        + g.items.map(function(e){
+            return '<div class="exp" data-id="'+e.id+'">'
+              + '<span class="exp-cat">'+esc(e.cat||'其他')+'</span>'
+              + '<div class="exp-main"><div class="exp-item">'+esc(e.item||'（未填項目）')+'</div>'
+              + (e.note?'<div class="exp-note">'+esc(e.note)+'</div>':'')+'</div>'
+              + '<div class="exp-amt">'+money(e.amount)+'</div>'
+              + '<div class="exp-acts"><button class="icon-btn" data-eact="edit">編輯</button>'
+              + '<button class="icon-btn del" data-eact="del">刪除</button></div></div>';
+          }).join('')
+        + '</div>';
+    }).join('');
+  }
+
+  function resetExpForm(){
+    editingExp=null; expCat=CATS[0]; syncCatChips();
+    $('expForm').reset();
+    $('eId').value=''; $('eDate').value=today();
+    $('expTitle').textContent='新增一筆花費';
+    $('expSubmit').textContent='儲存花費';
+    $('expCancelRow').hidden=true;
+    $('expBadge').textContent='';
+  }
+  function fillExpForm(e){
+    editingExp=e.id;
+    $('eId').value=e.id; $('eDate').value=e.date;
+    $('eAmount').value=e.amount; $('eItem').value=e.item||''; $('eNote').value=e.note||'';
+    expCat=e.cat||CATS[0]; syncCatChips();
+    $('expTitle').textContent='編輯 '+md(e.date)+' 的花費';
+    $('expSubmit').textContent='更新花費';
+    $('expCancelRow').hidden=false;
+    $('expBadge').textContent=money(e.amount);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  $('expForm').addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var amt=num($('eAmount').value);
+    if(amt===null||amt<0) return toast('請輸入金額');
+    var e={
+      id: editingExp||('e'+Date.now()+Math.random().toString(36).slice(2,6)),
+      date: $('eDate').value||today(),
+      amount: amt,
+      cat: expCat,
+      item: $('eItem').value.trim(),
+      note: $('eNote').value.trim(),
+      updatedAt: new Date().toISOString()
+    };
+    if(editingExp){ expenses=expenses.map(function(x){ return x.id===editingExp?e:x; }); toast('已更新'); }
+    else { expenses.push(e); toast('已記一筆 '+money(amt)); }
+    if(ym(e.date)!==pickedMonth()) $('mMonth').value=ym(e.date);
+    save(); resetExpForm(); renderMoney(); autoPush();
+  });
+  $('expCancel').onclick=function(){ resetExpForm(); };
+  $('mMonth').addEventListener('change',renderMoney);
+
+  $('expList').addEventListener('click',function(ev){
+    var btn=ev.target.closest('[data-eact]'); if(!btn) return;
+    var id=btn.closest('.exp').getAttribute('data-id');
+    var e=expenses.filter(function(x){ return x.id===id; })[0]; if(!e) return;
+    if(btn.getAttribute('data-eact')==='edit') return fillExpForm(e);
+    if(confirm('刪除 '+md(e.date)+' 的「'+(e.item||e.cat)+' '+money(e.amount)+'」？')){
+      expenses=expenses.filter(function(x){ return x.id!==id; });
+      if(editingExp===id) resetExpForm();
+      save(); renderMoney(); toast('已刪除'); autoPush();
+    }
+  });
+
+  $('copyMonthBtn').onclick=function(){
+    var month=pickedMonth(), list=expOf(month);
+    if(!list.length) return toast('這個月還沒有記錄');
+    var byCat={};
+    list.forEach(function(e){ var c=e.cat||'其他'; byCat[c]=(byCat[c]||0)+(Number(e.amount)||0); });
+    var lines=['💰'+month.replace('-','/')+' 記帳總結','','｜總支出：'+money(sum(list))+'（'+list.length+' 筆）',''];
+    Object.keys(byCat).sort(function(a,b){ return byCat[b]-byCat[a]; }).forEach(function(c){
+      lines.push('｜'+c+'：'+money(byCat[c]));
+    });
+    lines.push('','── 明細 ──');
+    list.slice().reverse().forEach(function(e){
+      lines.push(md(e.date)+' '+(e.cat||'其他')+' '+(e.item||'')+' '+money(e.amount));
+    });
+    copy(lines.join('\n'),'已複製 '+month.replace('-','/')+' 記帳');
+  };
+
+  /* ══════════ 分頁切換 ══════════ */
+  function showView(name){
+    settings.view=name; save();
+    $('viewHealth').hidden = name!=='Health';
+    $('viewMoney').hidden  = name!=='Money';
+    var tabs=$('tabs').children;
+    for(var i=0;i<tabs.length;i++) tabs[i].classList.toggle('on', tabs[i].getAttribute('data-view')===name);
+    if(name==='Money') renderMoney(); else render();
+  }
+  $('tabs').addEventListener('click',function(ev){
+    var t=ev.target.closest('.tab'); if(t) showView(t.getAttribute('data-view'));
+  });
 
   /* ── 雲端試算表同步 (Google Apps Script Web App) ── */
   function setDot(state,label){
@@ -826,18 +1132,19 @@
     return fetch(sheetUrl(),{
       method:'POST', mode:'no-cors',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'push',records:sorted()})
+      body:JSON.stringify({action:'push',records:sorted(),expenses:expenses})
     });
   }
 
   function pushCloud(silent){
     if(!sheetUrl()){ if(!silent) toast('請先設定雲端網址'); return; }
     setDot('','同步中⋯'); if(!silent) setStatus('上傳中⋯');
-    api({action:'push',records:sorted()}).then(function(d){
+    api({action:'push',records:sorted(),expenses:expenses}).then(function(d){
       noteSheet(d);
       settings.lastSync=stamp(); save();
       setDot('on','已同步');
-      setStatus('已上傳 '+d.count+' 筆到試算表 · '+settings.lastSync,'ok');
+      setStatus('已上傳 '+d.count+' 筆記錄、'+(d.expenseCount!=null?d.expenseCount:expenses.length)
+        +' 筆記帳到試算表 · '+settings.lastSync,'ok');
       if(!silent) toast('已上傳到雲端');
     }).catch(function(err){
       /* 回應被擋住時：照送，再用 JSONP 回頭確認試算表真的收到了 */
@@ -868,18 +1175,20 @@
 
   function pullCloud(){
     if(!sheetUrl()) return toast('請先設定雲端網址');
-    if(records.length && !confirm('「從雲端下載」會用試算表的內容覆蓋這台裝置目前的 '+records.length+' 筆記錄，確定嗎？')) return;
+    if((records.length||expenses.length) && !confirm('「從雲端下載」會用試算表的內容覆蓋這台裝置目前的 '
+       +records.length+' 筆健康記錄與 '+expenses.length+' 筆記帳，確定嗎？')) return;
     setDot('','同步中⋯'); setStatus('下載中⋯');
     apiRead().then(function(d){
       noteSheet(d);
       records=(d.records||[]).filter(function(r){ return r && r.date; });
+      if(d.expenses) expenses=d.expenses.filter(function(e){ return e && e.date; });
       var rs=latest('start'), rg=latest('goal');
       if(rs) settings.start=rs.start;
       if(rg) settings.goal=rg.goal;
-      settings.lastSync=stamp(); save(); resetForm(); render();
+      settings.lastSync=stamp(); save(); resetForm(); resetExpForm(); render(); renderMoney();
       setDot('on','已同步');
-      setStatus('已從試算表下載 '+records.length+' 筆 · '+settings.lastSync,'ok');
-      toast('已從雲端下載 '+records.length+' 筆');
+      setStatus('已從試算表下載 '+records.length+' 筆記錄、'+expenses.length+' 筆記帳 · '+settings.lastSync,'ok');
+      toast('已從雲端下載 '+records.length+'+'+expenses.length+' 筆');
     }).catch(function(err){
       setDot('err','同步失敗');
       setStatus('下載失敗：'+err.message,'err');
@@ -932,8 +1241,13 @@
     if(settings.lastSync) setStatus('上次同步：'+settings.lastSync);
   }
   buildChips();
+  buildCatChips();
   resetForm();
+  resetExpForm();
+  $('mMonth').value=thisMonth();
   render();
+  renderMoney();
+  showView(settings.view==='Money'?'Money':'Health');
 })();
 </script>
 </body>

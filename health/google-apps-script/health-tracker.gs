@@ -1,7 +1,8 @@
 /**
  * 猛健樂記錄 — Google 試算表後端 (Google Apps Script)
  *
- * 記錄會寫進試算表裡名為「猛健樂記錄」的分頁，原本的工作表不會被動到。
+ * 記錄會寫進試算表裡名為「猛健樂記錄」的分頁，記帳寫進「記帳」分頁，
+ * 原本的工作表不會被動到。
  * 試算表本身「不需要」開放共用，腳本是用你自己的身分執行的。
  *
  * 設定步驟：
@@ -25,18 +26,25 @@
  */
 var SPREADSHEET_ID = '';
 var SHEET_NAME = '猛健樂記錄';
+var EXPENSE_SHEET = '記帳';
 var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
                '原始體重', '目標體重', '今日體重',
                '早餐', '午餐', '晚餐', '點心', '備註', '副作用', '更新時間'];
+var EXPENSE_HEADERS = ['id', '日期', '分類', '項目', '金額', '備註', '更新時間'];
 
 function doPost(e) {
   try {
     var body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (body.action === 'push') {
-      writeAll(body.records || []);
-      return out(info({ action: 'push', count: (body.records || []).length }));
+      if (body.records) writeAll(body.records);
+      if (body.expenses) writeExpenses(body.expenses);
+      return out(info({
+        action: 'push',
+        count: (body.records || []).length,
+        expenseCount: (body.expenses || []).length
+      }));
     }
-    return out(info({ action: body.action || 'pull', records: readAll() }));
+    return out(info({ action: body.action || 'pull', records: readAll(), expenses: readExpenses() }));
   } catch (err) {
     return out({ ok: false, error: String(err) });
   }
@@ -49,7 +57,7 @@ function doPost(e) {
 function doGet(e) {
   var payload;
   try {
-    payload = info({ action: 'pull', records: readAll() });
+    payload = info({ action: 'pull', records: readAll(), expenses: readExpenses() });
   } catch (err) {
     payload = { ok: false, error: String(err) };
   }
@@ -84,14 +92,16 @@ function book() {
   return SpreadsheetApp.getActiveSpreadsheet();
 }
 
-function sheet() {
+function sheetNamed(name) {
   var ss = book();
-  var sh = ss.getSheetByName(SHEET_NAME);
+  var sh = ss.getSheetByName(name);
   if (!sh) {
-    sh = ss.insertSheet(SHEET_NAME);
+    sh = ss.insertSheet(name);
   }
   return sh;
 }
+
+function sheet() { return sheetNamed(SHEET_NAME); }
 
 /** 以網頁的資料為準，整份覆寫試算表 */
 function writeAll(records) {
@@ -152,6 +162,52 @@ function readAll() {
       note: String(v[13] || ''),
       se: String(v[14] || '').split(/[、,，]+/).filter(function (x) { return x.trim() !== ''; }),
       updatedAt: String(v[15] || '')
+    });
+  }
+  return list;
+}
+
+/** 記帳：以網頁的資料為準，整份覆寫「記帳」分頁 */
+function writeExpenses(list) {
+  var sh = sheetNamed(EXPENSE_SHEET);
+  sh.clear();
+  var rows = [EXPENSE_HEADERS];
+  list.forEach(function (e) {
+    rows.push([
+      e.id || '',
+      e.date || '',
+      e.cat || '',
+      e.item || '',
+      numOrBlank(e.amount),
+      e.note || '',
+      e.updatedAt || ''
+    ]);
+  });
+  sh.getRange(1, 1, rows.length, EXPENSE_HEADERS.length).setValues(rows);
+  sh.getRange(1, 1, 1, EXPENSE_HEADERS.length).setFontWeight('bold').setBackground('#f1f3f4');
+  sh.setFrozenRows(1);
+  if (rows.length > 1) {
+    sh.getRange(2, 5, rows.length - 1, 1).setNumberFormat('$#,##0');
+  }
+  sh.setColumnWidth(4, 260);
+  sh.setColumnWidth(6, 180);
+}
+
+function readExpenses() {
+  var sh = sheetNamed(EXPENSE_SHEET);
+  var values = sh.getDataRange().getValues();
+  var list = [];
+  for (var i = 1; i < values.length; i++) {
+    var v = values[i];
+    if (!v[1]) continue;
+    list.push({
+      id: String(v[0] || ('sheet-exp-' + i)),
+      date: asDate(v[1]),
+      cat: String(v[2] || '其他'),
+      item: String(v[3] || ''),
+      amount: asNum(v[4]) || 0,
+      note: String(v[5] || ''),
+      updatedAt: String(v[6] || '')
     });
   }
   return list;
