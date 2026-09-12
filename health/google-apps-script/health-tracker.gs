@@ -29,7 +29,7 @@ var SHEET_NAME = '猛健樂記錄';
 var EXPENSE_SHEET = '記帳';
 var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
                '原始體重', '目標體重', '今日體重',
-               '早餐', '午餐', '晚餐', '點心',
+               '早餐', '午餐', '晚餐', '點心', '熱量粗估',
                '運動', '運動分鐘', '消耗kcal', '運動內容',
                '備註', '副作用', '更新時間'];
 var EXPENSE_HEADERS = ['id', '日期', '分類', '項目', '金額', '備註', '更新時間'];
@@ -125,6 +125,7 @@ function writeAll(records) {
       r.l || '',
       r.d || '',
       r.s || '',
+      numOrBlank(r.kcalIn),
       (r.exTypes || []).join('、'),
       numOrBlank(r.exMins),
       numOrBlank(r.exKcal),
@@ -180,6 +181,7 @@ function readAll() {
       l: String(get(v, '午餐') || ''),
       d: String(get(v, '晚餐') || ''),
       s: String(get(v, '點心') || ''),
+      kcalIn: asNum(get(v, '熱量粗估')),
       exTypes: splitList(get(v, '運動')),
       exMins: asNum(get(v, '運動分鐘')),
       exKcal: asNum(get(v, '消耗kcal')),
