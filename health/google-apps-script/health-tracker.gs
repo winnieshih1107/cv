@@ -26,13 +26,13 @@
  */
 var SPREADSHEET_ID = '';
 /** 程式碼版本；網頁會比對這個字串，不一樣就提醒你重新部署 */
-var CODE_VERSION = 'v6-熱量赤字';
+var CODE_VERSION = 'v7-TDEE';
 var SHEET_NAME = '猛健樂記錄';
 var EXPENSE_SHEET = '記帳';
 var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
                '原始體重', '目標體重', '今日體重',
                '早餐', '午餐', '晚餐', '點心',
-               '食物熱量kcal', '身體消耗kcal', '熱量赤字kcal',
+               '食物熱量kcal', 'TDEE kcal', '熱量赤字kcal',
                '運動', '運動分鐘', '消耗kcal', '運動內容',
                '備註', '副作用', '更新時間'];
 var EXPENSE_HEADERS = ['id', '日期', '分類', '項目', '金額', '備註', '更新時間'];
@@ -190,7 +190,7 @@ function readAll() {
       d: String(get(v, '晚餐') || ''),
       s: String(get(v, '點心') || ''),
       kcalIn: asNum(get(v, '食物熱量kcal') !== '' ? get(v, '食物熱量kcal') : get(v, '熱量粗估')),
-      kcalOut: asNum(get(v, '身體消耗kcal')),
+      kcalOut: asNum(get(v, 'TDEE kcal') !== '' ? get(v, 'TDEE kcal') : get(v, '身體消耗kcal')),
       exTypes: splitList(get(v, '運動')),
       exMins: asNum(get(v, '運動分鐘')),
       exKcal: asNum(get(v, '消耗kcal')),
@@ -206,6 +206,8 @@ function readAll() {
 function splitList(v) {
   return String(v || '').split(/[、,，]+/).filter(function (x) { return x.trim() !== ''; });
 }
+
+/** 每日熱量赤字 ＝ TDEE − 食物熱量粗估 ＋ 運動消耗 */
 
 /** 記帳：以網頁的資料為準，整份覆寫「記帳」分頁 */
 function writeExpenses(list) {
