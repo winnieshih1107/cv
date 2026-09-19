@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" translate="no">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>猛健樂記錄 — Weight Journal</title>
 <meta name="theme-color" content="#08080A" />
+<meta name="google" content="notranslate" />
 <meta name="description" content="每日體重、飲食與副作用記錄表，可同步到 Google 試算表。" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -207,7 +208,7 @@
   footer{padding:2rem 5% 3rem;text-align:center;font-size:.72rem;color:var(--muted);border-top:1px solid var(--border)}
 </style>
 </head>
-<body>
+<body class="notranslate" translate="no">
 
 <header>
   <div class="wrap">
@@ -826,6 +827,7 @@
     names.forEach(function(name){
       var b=document.createElement('button');
       b.type='button'; b.className='chip'; b.textContent=name;
+      b.setAttribute('data-name', name);
       b.onclick=function(){
         var list=getList(), i=list.indexOf(name);
         if(i<0) list.push(name); else list.splice(i,1);
@@ -837,7 +839,9 @@
   function syncChips(){
     [['seChips',selectedSE],['exChips',selectedEx]].forEach(function(pair){
       var kids=$(pair[0]).children;
-      for(var i=0;i<kids.length;i++) kids[i].classList.toggle('on', pair[1].indexOf(kids[i].textContent)>=0);
+      for(var i=0;i<kids.length;i++){
+        kids[i].classList.toggle('on', pair[1].indexOf(kids[i].getAttribute('data-name'))>=0);
+      }
     });
   }
 
@@ -1072,6 +1076,7 @@
     CATS.forEach(function(name){
       var b=document.createElement('button');
       b.type='button'; b.className='chip'; b.textContent=name;
+      b.setAttribute('data-name', name);
       b.onclick=function(){ expCat=name; syncCatChips(); };
       box.appendChild(b);
     });
@@ -1079,7 +1084,7 @@
   }
   function syncCatChips(){
     var kids=$('catChips').children;
-    for(var i=0;i<kids.length;i++) kids[i].classList.toggle('on', kids[i].textContent===expCat);
+    for(var i=0;i<kids.length;i++) kids[i].classList.toggle('on', kids[i].getAttribute('data-name')===expCat);
   }
 
   function renderMoney(){
