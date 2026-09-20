@@ -315,7 +315,7 @@
             </div>
           </div>
           <div class="field" style="margin-top:-.3rem">
-            <label>TDEE 活動量（點一下帶入數值，也可以自己改）</label>
+            <label>TDEE 活動量 · 依目標體重計算（點一下帶入數值，也可以自己改）</label>
             <div class="chips tdee" id="tdeeChips"></div>
           </div>
           <div class="hint" id="deficitHint">兩欄都填就會算出當日熱量赤字（消耗 − 食物）。</div>
@@ -521,11 +521,14 @@
   'use strict';
   var K_REC='mjl-records-v1', K_SET='mjl-settings-v1', K_EXP='mjl-expenses-v1';
   var CATS=['飲食','藥費','醫療','交通','日用','運動','娛樂','其他'];
+  /* 依目標體重計算的每日總熱量消耗 */
   var TDEE_LEVELS=[
-    {name:'靜態', full:'身體活動趨於靜態', kcal:1969},
-    {name:'較低', full:'身體活動程度較低', kcal:2256},
-    {name:'激烈', full:'身體活動程度激烈', kcal:3118}
+    {name:'靜態', full:'身體活動趨於靜態', kcal:1681},
+    {name:'較低', full:'身體活動程度較低', kcal:1926},
+    {name:'正常', full:'身體活動程度正常', kcal:2172}
   ];
+  /* 舊記錄用過的活動量名稱，仍要顯示得出來 */
+  var LEGACY_LEVELS={'身體活動程度激烈':'激烈'};
   var EX_TYPES=['走路','跑步','腳踏車','重訓','游泳','瑜伽','有氧','伸展','其他'];
   var SE_LIST=['頭暈','心悸','噁心','想吐','胃脹','便祕','腹瀉','胃食道逆流','沒食慾','疲倦','頭痛','失眠'];
 
@@ -800,18 +803,19 @@
       box.appendChild(b);
     });
   }
-  /** 手動改數字時，對得上就標記活動量，對不上就清掉 */
-  function syncTdeeChips(){
+  /** 手動改數字時，對得上就標記活動量，對不上就清掉（keepLevel＝載入舊記錄，保留原本存的） */
+  function syncTdeeChips(keepLevel){
     var v=num($('fKcalOut').value), match=null;
     TDEE_LEVELS.forEach(function(lv){ if(v===lv.kcal) match=lv; });
-    if(!match) tdeeLevel=''; else tdeeLevel=match.full;
+    if(match) tdeeLevel=match.full;
+    else if(!keepLevel) tdeeLevel='';
     var kids=$('tdeeChips').children;
     for(var i=0;i<kids.length;i++){
       kids[i].classList.toggle('on', !!match && Number(kids[i].getAttribute('data-kcal'))===match.kcal);
     }
   }
   function levelShort(full){
-    var s='';
+    var s=LEGACY_LEVELS[full]||'';
     TDEE_LEVELS.forEach(function(lv){ if(lv.full===full) s=lv.name; });
     return s;
   }
@@ -886,7 +890,7 @@
     $('fKcal').value=r.kcalIn!=null?r.kcalIn:'';
     $('fKcalOut').value=r.kcalOut!=null?r.kcalOut:'';
     tdeeLevel=r.tdeeLevel||'';
-    syncTdeeChips();
+    syncTdeeChips(true);
     updateDeficitHint();
     $('fNote').value=r.note||'';
     selectedEx=(r.exTypes||[]).slice();
