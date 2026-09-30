@@ -26,11 +26,12 @@
  */
 var SPREADSHEET_ID = '';
 /** 程式碼版本；網頁會比對這個字串，不一樣就提醒你重新部署 */
-var CODE_VERSION = 'v8-TDEE活動量';
+var CODE_VERSION = 'v9-未記錄飲食';
 var SHEET_NAME = '猛健樂記錄';
 var EXPENSE_SHEET = '記帳';
 var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
                '原始體重', '目標體重', '今日體重',
+               '未記錄飲食', '未記錄原因',
                '早餐', '午餐', '晚餐', '點心',
                '食物熱量kcal', 'TDEE kcal', 'TDEE 活動量', '熱量赤字kcal',
                '運動', '運動分鐘', '消耗kcal', '運動內容',
@@ -125,6 +126,8 @@ function writeAll(records) {
       numOrBlank(r.start),
       numOrBlank(r.goal),
       numOrBlank(r.weight),
+      r.noLog ? '是' : '',
+      r.noLogReason || '',
       r.b || '',
       r.l || '',
       r.d || '',
@@ -148,7 +151,8 @@ function writeAll(records) {
   sh.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold').setBackground('#f1f3f4');
   sh.setFrozenRows(1);
   sh.getRange(2, 2, Math.max(rows.length - 1, 1), 1).setNumberFormat('@');
-  var wide = { '早餐': 1, '午餐': 1, '晚餐': 1, '點心': 1, '運動內容': 1, '備註': 1, '副作用': 1 };
+  var wide = { '早餐': 1, '午餐': 1, '晚餐': 1, '點心': 1,
+               '運動內容': 1, '備註': 1, '副作用': 1, '未記錄原因': 1 };
   for (var c = 1; c <= HEADERS.length; c++) {
     sh.setColumnWidth(c, wide[HEADERS[c - 1]] ? 220 : 100);
   }
@@ -186,6 +190,8 @@ function readAll() {
       start: asNum(get(v, '原始體重')),
       goal: asNum(get(v, '目標體重')),
       weight: asNum(get(v, '今日體重')),
+      noLog: String(get(v, '未記錄飲食')).trim() !== '',
+      noLogReason: String(get(v, '未記錄原因') || ''),
       b: String(get(v, '早餐') || ''),
       l: String(get(v, '午餐') || ''),
       d: String(get(v, '晚餐') || ''),
