@@ -26,7 +26,7 @@
  */
 var SPREADSHEET_ID = '';
 /** 程式碼版本；網頁會比對這個字串，不一樣就提醒你重新部署 */
-var CODE_VERSION = 'v9-未記錄飲食';
+var CODE_VERSION = 'v10-排便生理期';
 var SHEET_NAME = '猛健樂記錄';
 var EXPENSE_SHEET = '記帳';
 var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
@@ -35,6 +35,7 @@ var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
                '早餐', '午餐', '晚餐', '點心',
                '食物熱量kcal', 'TDEE kcal', 'TDEE 活動量', '熱量赤字kcal',
                '運動', '運動分鐘', '消耗kcal', '運動內容',
+               '排便次數', '排便型態', '排便備註', '生理期', '經血量',
                '備註', '副作用', '更新時間'];
 var EXPENSE_HEADERS = ['id', '日期', '分類', '項目', '金額', '備註', '更新時間'];
 
@@ -142,6 +143,11 @@ function writeAll(records) {
       numOrBlank(r.exMins),
       numOrBlank(r.exKcal),
       r.exNote || '',
+      numOrBlank(r.poopCount),
+      r.poopType || '',
+      r.poopNote || '',
+      r.period ? '是' : '',
+      r.periodFlow || '',
       r.note || '',
       (r.se || []).join('、'),
       r.updatedAt || ''
@@ -203,6 +209,11 @@ function readAll() {
       exMins: asNum(get(v, '運動分鐘')),
       exKcal: asNum(get(v, '消耗kcal')),
       exNote: String(get(v, '運動內容') || ''),
+      poopCount: asNum(get(v, '排便次數')),
+      poopType: String(get(v, '排便型態') || ''),
+      poopNote: String(get(v, '排便備註') || ''),
+      period: String(get(v, '生理期')).trim() !== '',
+      periodFlow: String(get(v, '經血量') || ''),
       note: String(get(v, '備註') || ''),
       se: splitList(get(v, '副作用')),
       updatedAt: String(get(v, '更新時間') || '')
