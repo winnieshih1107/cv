@@ -26,11 +26,11 @@
  */
 var SPREADSHEET_ID = '';
 /** 程式碼版本；網頁會比對這個字串，不一樣就提醒你重新部署 */
-var CODE_VERSION = 'v10-排便生理期';
+var CODE_VERSION = 'v11-體脂';
 var SHEET_NAME = '猛健樂記錄';
 var EXPENSE_SHEET = '記帳';
 var HEADERS = ['id', '日期', 'Day', '施打', '劑量(mg)', '第幾劑',
-               '原始體重', '目標體重', '今日體重',
+               '原始體重', '目標體重', '今日體重', '體脂%', '目標體脂%',
                '未記錄飲食', '未記錄原因',
                '早餐', '午餐', '晚餐', '點心',
                '食物熱量kcal', 'TDEE kcal', 'TDEE 活動量', '熱量赤字kcal',
@@ -127,6 +127,8 @@ function writeAll(records) {
       numOrBlank(r.start),
       numOrBlank(r.goal),
       numOrBlank(r.weight),
+      numOrBlank(r.fat),
+      numOrBlank(r.fatGoal),
       r.noLog ? '是' : '',
       r.noLogReason || '',
       r.b || '',
@@ -196,6 +198,8 @@ function readAll() {
       start: asNum(get(v, '原始體重')),
       goal: asNum(get(v, '目標體重')),
       weight: asNum(get(v, '今日體重')),
+      fat: asNum(get(v, '體脂%')),
+      fatGoal: asNum(get(v, '目標體脂%')),
       noLog: String(get(v, '未記錄飲食')).trim() !== '',
       noLogReason: String(get(v, '未記錄原因') || ''),
       b: String(get(v, '早餐') || ''),
