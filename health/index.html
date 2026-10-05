@@ -257,6 +257,7 @@
       <div class="stat is-mint"><div class="stat-num" id="sLost">0<small>kg</small></div><div class="stat-label">已減少</div></div>
       <div class="stat"><div class="stat-num" id="sLeft">–<small>kg</small></div><div class="stat-label">距離目標</div></div>
       <div class="stat"><div class="stat-num" id="sFat">–</div><div class="stat-label" id="sFatLabel">目前體脂</div></div>
+      <div class="stat is-gold"><div class="stat-num" id="sShot">–</div><div class="stat-label" id="sShotLabel">第一劑至今</div></div>
       <div class="stat is-mint"><div class="stat-num" id="sEx">0<small>分</small></div><div class="stat-label" id="sExLabel">近 7 天運動</div></div>
       <div class="stat"><div class="stat-num" id="sDef">–</div><div class="stat-label" id="sDefLabel">平均熱量赤字</div></div>
     </div>
@@ -777,6 +778,16 @@
       $('sFatLabel').textContent='目前體脂';
     }
 
+    var rShot=firstShotRec();
+    if(rShot){
+      var sinceShot=dayDiff(rShot.date, today());
+      $('sShot').innerHTML=sinceShot+'<small>天</small>';
+      $('sShotLabel').textContent='第一劑至今 · '+md(rShot.date);
+    }else{
+      $('sShot').textContent='–';
+      $('sShotLabel').textContent='第一劑至今';
+    }
+
     var since=new Date(); since.setDate(since.getDate()-6);
     var from=since.getFullYear()+'-'+p2(since.getMonth()+1)+'-'+p2(since.getDate());
     var week=records.filter(function(r){ return r.date>=from && r.date<=today() && (r.exMins||0)>0; });
@@ -826,7 +837,11 @@
       var idx=s.indexOf(r), prev=idx>0?s[idx-1]:null;
       var diff=(prev && prev.weight!=null && r.weight!=null)?r.weight-prev.weight:null;
       var tags='';
-      if(r.shot) tags+='<span class="tag shot">💉 '+esc(r.dose||'')+'mg · 第'+zh(r.shotNo||1)+'劑</span>';
+      if(r.shot){
+        var fs=firstShotRec(), since=fs?dayDiff(fs.date,r.date):0;
+        tags+='<span class="tag shot">💉 '+esc(r.dose||'')+'mg · 第'+zh(r.shotNo||1)+'劑'
+          + (since>0?' · 第一劑後 '+since+' 天':'')+'</span>';
+      }
       if(diff!=null && Math.abs(diff)>0.001) tags+='<span class="tag '+(diff<0?'down':'up')+'">'+(diff<0?'▼ ':'▲ ')+fmtW(Math.abs(diff))+'kg</span>';
       if(r.noLog) tags+='<span class="tag up">🚫 未記錄飲食</span>';
       if(r.period) tags+='<span class="tag period">🩸 生理期'+(r.periodFlow?' · '+esc(r.periodFlow):'')+'</span>';
@@ -1236,6 +1251,12 @@
   $('fExKcal').addEventListener('input',updateDeficitHint);
   $('fDate').addEventListener('change',function(){ updateDayBadge(); syncShot(); syncPeriod(); });
   $('fDay').addEventListener('input',updateDayBadge);
+  /** 第一筆有施打的記錄 */
+  function firstShotRec(){
+    var s=sorted();
+    for(var i=0;i<s.length;i++){ if(s[i].shot) return s[i]; }
+    return null;
+  }
   function lastShotRec(){
     var s=sorted();
     for(var i=s.length-1;i>=0;i--){ if(s[i].shot) return s[i]; }
@@ -1245,10 +1266,15 @@
     var on=$('fShot').checked;
     $('shotFields').style.display=on?'grid':'none';
     $('shotToggle').classList.toggle('on',on);
-    var last=lastShotRec(), hint='';
+    var last=lastShotRec(), first=firstShotRec(), hint='';
     if(last){
-      var gap=dayDiff(last.date, $('fDate').value||today());
+      var d=$('fDate').value||today();
+      var gap=dayDiff(last.date, d);
       hint='上次 '+md(last.date)+'（第'+zh(last.shotNo||1)+'劑）'+(gap>=0?' · 已 '+gap+' 天':'');
+      if(first && first!==last){
+        var fg=dayDiff(first.date, d);
+        if(fg>=0) hint+='｜第一劑 '+fg+' 天';
+      }
     }else if(!on){ hint='第一次施打記得勾選'; }
     $('shotHint').textContent=hint;
   }
